@@ -1,2 +1,2 @@
-web: bundle exec ruby app.rb -p $PORT
+web: bundle exec rackup -p $PORT
 worker: bundle exec sidekiq -r ./app.rb
