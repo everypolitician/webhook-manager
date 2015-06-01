@@ -16,7 +16,7 @@ end
 
 helpers Helpers
 
-post '/github_events' do
+post '/new-pull-request' do
   pull_request = JSON.parse(payload_body)
   type = request.env['HTTP_X_GITHUB_EVENT']
   action = pull_request['action']
