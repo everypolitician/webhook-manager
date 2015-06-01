@@ -1,4 +1,5 @@
 require 'github'
+require 'date'
 
 class UpdateViewerSinatraJob
   include Sidekiq::Worker
@@ -20,16 +21,26 @@ class UpdateViewerSinatraJob
       end
     end
 
-    git_clone('chrismytton/viewer-sinatra') do
+    viewer_sinatra_repo = ENV.fetch('VIEWER_SINATRA_REPO')
+
+    git_clone(viewer_sinatra_repo) do
       git_config = "-c user.name='#{github.login}' -c user.email='#{github.emails.first[:email]}'"
       files_to_update.each do |country, sha_updated|
+        branch_name = "#{country.downcase}-#{DateTime.now.strftime('%Y%m%d%H%M%S')}"
+        `git checkout -q -b #{branch_name}`
         path = "src/#{country}.src"
         File.open(path, 'w') { |file| file.puts(sha_updated) }
         `git add .`
         message = "#{country}: Initial data"
         `git #{git_config} commit --message="#{message}"`
+        `git push --quiet origin #{branch_name}`
+        pull_request = github.create_pull_request(
+          viewer_sinatra_repo,
+          'master',
+          branch_name,
+          message
+        )
       end
-      `git push --quiet origin master`
     end
   end
 end
