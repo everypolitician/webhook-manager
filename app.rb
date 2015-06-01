@@ -16,6 +16,16 @@ end
 
 helpers Helpers
 
+get '/' do
+  content_type 'application/json'
+  JSON.pretty_generate(
+    webhook_receivers: {
+      pull_requests: url('/new-pull-request'),
+      pushes: url('/everypolitician-data-push')
+    }
+  )
+end
+
 post '/new-pull-request' do
   pull_request = JSON.parse(payload_body)
   type = request.env['HTTP_X_GITHUB_EVENT']
