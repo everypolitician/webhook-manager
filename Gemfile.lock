@@ -13,6 +13,8 @@ GEM
     multipart-post (2.0.0)
     octokit (3.8.0)
       sawyer (~> 0.6.0, >= 0.5.3)
+    puma (2.11.3)
+      rack (>= 1.1, < 2.0)
     rack (1.6.1)
     rack-protection (1.5.3)
       rack
@@ -42,5 +44,6 @@ PLATFORMS
 DEPENDENCIES
   dotenv
   octokit
+  puma
   sidekiq
   sinatra
