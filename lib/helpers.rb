@@ -1,5 +1,6 @@
 require 'openssl'
 
+# Sinatra route helpers.
 module Helpers
   HMAC_DIGEST = OpenSSL::Digest.new('sha1')
 

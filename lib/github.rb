@@ -24,4 +24,18 @@ module Github
       yield
     end
   end
+
+  def git_config
+    @git_config ||= "-c user.name='#{github.login}' " \
+      "-c user.email='#{github.emails.first[:email]}'"
+  end
+
+  def git_commit_and_push(options)
+    branch_name = options.fetch(:branch)
+    message = options.fetch(:message)
+    `git checkout -q -b #{branch_name}`
+    `git add .`
+    `git #{git_config} commit --message="#{message}"`
+    `git push --quiet origin #{branch_name}`
+  end
 end
