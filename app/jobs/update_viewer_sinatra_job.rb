@@ -12,7 +12,7 @@ class UpdateViewerSinatraJob
     added_files = added_files.flatten.uniq
     final_json = added_files.select { |file| file =~ /final.json$/ }
     files_to_update = {}
-    git_clone(push['repository']['full_name']) do |dir|
+    git_clone(push['repository']['full_name']) do
       final_json.each do |file|
         match = file.match(/^data\/(?<country>\w+)/)
         country = match[:country]
