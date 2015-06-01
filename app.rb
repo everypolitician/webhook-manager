@@ -27,15 +27,10 @@ get '/' do
 end
 
 post '/new-pull-request' do
-  pull_request = JSON.parse(payload_body)
   type = request.env['HTTP_X_GITHUB_EVENT']
-  action = pull_request['action']
-  user = pull_request['pull_request']['user']['login']
-  if type == 'pull_request' && action == 'opened' &&
-     user == 'seepoliticianstweetbot'
-    repo = pull_request['repository']['full_name']
-    number = pull_request['number']
-    MergeJob.perform_async(repo, number)
+  if type == 'pull_request'
+    pull_request = JSON.parse(payload_body)
+    MergeJob.perform_async(pull_request)
   end
   'OK'
 end
