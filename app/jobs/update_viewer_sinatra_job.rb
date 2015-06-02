@@ -13,6 +13,8 @@ class UpdateViewerSinatraJob
     @push = push
     @viewer_sinatra_repo = ENV.fetch('VIEWER_SINATRA_REPO')
 
+    return unless push_ref_is_master?
+
     git_clone(viewer_sinatra_repo) do
       files_to_update.each do |country, sha_updated|
         new_pull_request_for(country, sha_updated)
@@ -21,6 +23,10 @@ class UpdateViewerSinatraJob
   end
 
   private
+
+  def push_ref_is_master?
+    push['ref'] == 'refs/heads/master'
+  end
 
   def files_to_update
     to_update = {}
