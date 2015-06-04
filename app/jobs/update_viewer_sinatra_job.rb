@@ -13,13 +13,7 @@ class UpdateViewerSinatraJob
     @push = push
     @viewer_sinatra_repo = ENV.fetch('VIEWER_SINATRA_REPO')
 
-    return unless push_ref_is_master?
-
-    git_clone(viewer_sinatra_repo) do
-      files_to_update.each do |country, sha_updated|
-        new_pull_request_for(country, sha_updated)
-      end
-    end
+    new_pull_request if push_ref_is_master? && countries_json_pushed?
   end
 
   private
@@ -28,38 +22,42 @@ class UpdateViewerSinatraJob
     push['ref'] == 'refs/heads/master'
   end
 
-  def files_to_update
-    to_update = {}
-    git_clone(push['repository']['full_name']) do
-      final_json.each do |file|
-        match = file.match(/^data\/(?<country>\w+)/)
-        country = match[:country]
-        sha_updated = `git log --format='%h|%at' -1 #{file}`
-        to_update[country] = sha_updated
-      end
+  def countries_json_pushed?
+    files = push['commits'].map do |commit|
+      commit['added'] + commit['modified']
     end
-    to_update
+    files = files.flatten.uniq
+    files.any? { |file| file =~ /^countries.json$/ }
   end
 
-  def final_json
-    added_files = push['commits'].map do |commit|
-      commit['added']
-    end
-    added_files = added_files.flatten.uniq
-    added_files.select { |file| file =~ /final.json$/ }
+  def datasource
+    @datasource ||= github.contents(viewer_sinatra_repo, path: 'DATASOURCE')
   end
 
-  def new_pull_request_for(country, sha_updated)
-    File.open("src/#{country}.src", 'w') { |file| file.puts(sha_updated) }
-    branch_name = "#{country.downcase}-#{timestamp}"
-    message = "#{country}: Initial data"
-    git_commit_and_push(branch: branch_name, message: message)
+  def new_pull_request
+    branch_name = "update_countries.json-#{timestamp}"
+    message = "Update #{datasource[:name]}"
+    master_sha = github.ref(viewer_sinatra_repo, 'heads/master')[:object][:sha]
+    github.create_ref(viewer_sinatra_repo, "heads/#{branch_name}", master_sha)
+    github.update_contents(
+      viewer_sinatra_repo,
+      datasource[:path],
+      message,
+      datasource[:sha],
+      countries_json_url,
+      branch: branch_name
+    )
     github.create_pull_request(
       viewer_sinatra_repo,
       'master',
       branch_name,
       message
     )
+  end
+
+  def countries_json_url
+    'https://raw.githubusercontent.com/everypolitician/everypolitician-data/' \
+      "#{push['after']}/countries.json"
   end
 
   def timestamp
