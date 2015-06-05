@@ -1,7 +1,7 @@
 ENV['RACK_ENV'] = 'test'
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start if ENV['COVERAGE']
 
 require 'minitest/autorun'
 require 'rack/test'
