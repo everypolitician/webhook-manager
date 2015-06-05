@@ -12,6 +12,7 @@ gem 'rake'
 gem 'pg'
 gem 'omniauth-github'
 gem 'rack-flash3', require: 'rack/flash'
+gem 'sinatra-sequel'
 
 group :test do
   gem 'minitest'

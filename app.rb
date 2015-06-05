@@ -7,16 +7,19 @@ require 'json'
 $LOAD_PATH << File.expand_path('../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
-require 'helpers'
-require 'app/models'
-require 'app/jobs'
-
 configure do
   enable :sessions
   set :session_secret, ENV['SESSION_SECRET']
-  set :database, DB
+  set :database, lambda {
+    ENV['DATABASE_URL'] ||
+      "postgres:///everypolitician_#{environment}"
+  }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
 end
+
+require 'helpers'
+require 'app/models'
+require 'app/jobs'
 
 helpers Helpers
 

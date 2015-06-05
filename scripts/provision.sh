@@ -15,6 +15,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 sudo -u postgres createuser --createdb vagrant
 createdb everypolitician_development
+createdb everypolitician_test
 
 # Add cd /vagrant to ~/.bashrc
 grep -qG "cd /vagrant" "$HOME/.bashrc" || echo "cd /vagrant" >> "$HOME/.bashrc"
