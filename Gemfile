@@ -16,4 +16,5 @@ gem 'rack-flash3', require: 'rack/flash'
 group :test do
   gem 'minitest'
   gem 'rack-test'
+  gem 'simplecov', require: false
 end
