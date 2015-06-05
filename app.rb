@@ -36,12 +36,13 @@ get '/auth/github/callback' do
   if user
     session[:user_id] = user.id
   else
-    session[:user_id] = User.insert(
+    user = User.create(
       name: auth[:info][:name],
       email: auth[:info][:email],
       github_uid: auth[:uid],
       github_token: auth[:credentials][:token]
     )
+    session[:user_id] = user.id
   end
   flash[:notice] = 'You have successfully logged in with Twitter'
   redirect to('/')
