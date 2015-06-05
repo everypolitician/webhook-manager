@@ -1,0 +1,8 @@
+<div class="user-bar">
+    <h1>EveryPolitician apps</h1>
+  <% if current_user %>
+    <a href="<%= url '/logout' %>">Log out</a>
+  <% else %>
+    <a href="<%= url '/auth/github' %>">Log in with GitHub</a>
+  <% end %>
+</div>

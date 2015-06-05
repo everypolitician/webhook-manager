@@ -30,16 +30,6 @@ get '/' do
   erb :index
 end
 
-get '/urls.json' do
-  content_type 'application/json'
-  JSON.pretty_generate(
-    webhook_receivers: {
-      pull_requests: url('/new-pull-request'),
-      pushes: url('/everypolitician-data-push')
-    }
-  )
-end
-
 get '/auth/github/callback' do
   auth = request.env['omniauth.auth']
   user = User.first(github_uid: auth[:uid])
@@ -55,6 +45,22 @@ get '/auth/github/callback' do
   end
   flash[:notice] = 'You have successfully logged in with Twitter'
   redirect to('/')
+end
+
+get '/logout' do
+  session.clear
+  flash[:notice] = 'You have been logged out'
+  redirect to('/')
+end
+
+get '/urls.json' do
+  content_type 'application/json'
+  JSON.pretty_generate(
+    webhook_receivers: {
+      pull_requests: url('/new-pull-request'),
+      pushes: url('/everypolitician-data-push')
+    }
+  )
 end
 
 post '/new-pull-request' do
