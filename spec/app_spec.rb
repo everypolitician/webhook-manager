@@ -6,9 +6,22 @@ describe 'App' do
     assert last_response.ok?
   end
 
+  describe 'login' do
+    it 'creates a new user' do
+      assert_difference 'User.count', 1 do
+        get '/auth/github'
+        follow_redirect!
+      end
+      assert_equal 'http://example.org/auth/github/callback', last_request.url
+    end
+  end
+
   describe 'GitHub webhooks' do
     it 'rejects invalid signatures' do
-      post '/new-pull-request', {}, 'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid', 'HTTP_X_GITHUB_EVENT' => 'pull_request'
+      post '/new-pull-request',
+           {},
+           'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid',
+           'HTTP_X_GITHUB_EVENT' => 'pull_request'
       assert_equal 500, last_response.status
       assert_equal "Signatures didn't match!", last_response.body
     end
@@ -32,7 +45,10 @@ describe 'App' do
         body
       )
       MergeJob.stub(:perform_async, true) do
-        post '/new-pull-request', body, 'HTTP_X_HUB_SIGNATURE' => signature, 'HTTP_X_GITHUB_EVENT' => 'pull_request'
+        post '/new-pull-request',
+             body,
+             'HTTP_X_HUB_SIGNATURE' => signature,
+             'HTTP_X_GITHUB_EVENT' => 'pull_request'
       end
       assert last_response.ok?
       assert_equal 'OK', last_response.body

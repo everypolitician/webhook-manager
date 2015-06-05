@@ -13,6 +13,7 @@ gem 'pg'
 gem 'omniauth-github'
 gem 'rack-flash3', require: 'rack/flash'
 gem 'sinatra-sequel'
+gem 'rubocop'
 
 group :test do
   gem 'minitest'
