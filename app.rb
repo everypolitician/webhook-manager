@@ -12,13 +12,25 @@ require 'app/models'
 require 'app/jobs'
 
 configure do
+  enable :sessions
+  set :session_secret, ENV['SESSION_SECRET']
   set :database, DB
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
 end
 
 helpers Helpers
 
+use OmniAuth::Builder do
+  provider :github, ENV['GITHUB_KEY'], ENV['GITHUB_SECRET'], scope: 'user:email'
+end
+
+use Rack::Flash
+
 get '/' do
+  erb :index
+end
+
+get '/urls.json' do
   content_type 'application/json'
   JSON.pretty_generate(
     webhook_receivers: {
@@ -26,6 +38,23 @@ get '/' do
       pushes: url('/everypolitician-data-push')
     }
   )
+end
+
+get '/auth/github/callback' do
+  auth = request.env['omniauth.auth']
+  user = User.first(github_uid: auth[:uid])
+  if user
+    session[:user_id] = user.id
+  else
+    session[:user_id] = User.insert(
+      name: auth[:info][:name],
+      email: auth[:info][:email],
+      github_uid: auth[:uid],
+      github_token: auth[:credentials][:token]
+    )
+  end
+  flash[:notice] = 'You have successfully logged in with Twitter'
+  redirect to('/')
 end
 
 post '/new-pull-request' do

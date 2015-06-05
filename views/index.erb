@@ -1,0 +1,12 @@
+<% if current_user %>
+
+  <p>Logged in as <%= current_user.name %></p>
+
+<% else %>
+
+    <p class="login-prompt">
+        <a href="<%= url '/auth/github' %>">Log in with GitHub</a>
+        to create your first app.
+    </p>
+
+<% end %>
