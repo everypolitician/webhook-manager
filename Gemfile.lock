@@ -12,6 +12,7 @@ GEM
     hitimes (1.2.2)
     json (1.8.2)
     jwt (1.5.0)
+    minitest (5.7.0)
     multi_json (1.11.0)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
@@ -40,6 +41,8 @@ GEM
       rack
     rack-protection (1.5.3)
       rack
+    rack-test (0.6.3)
+      rack (>= 1.0)
     rake (10.4.2)
     redis (3.2.1)
     redis-namespace (1.5.2)
@@ -67,11 +70,13 @@ PLATFORMS
 
 DEPENDENCIES
   dotenv
+  minitest
   octokit
   omniauth-github
   pg
   puma
   rack-flash3
+  rack-test
   rake
   sequel
   sidekiq

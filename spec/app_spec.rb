@@ -2,7 +2,7 @@ ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
 require 'rack/test'
-require_relative './app'
+require_relative '../app'
 
 describe 'App' do
   include Rack::Test::Methods
@@ -13,7 +13,7 @@ describe 'App' do
 
   describe 'GitHub webhooks' do
     it 'rejects invalid signatures' do
-      post '/github_events', {}, 'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid'
+      post '/new-pull-request', {}, 'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid', 'HTTP_X_GITHUB_EVENT' => 'pull_request'
       assert_equal 500, last_response.status
       assert_equal "Signatures didn't match!", last_response.body
     end
@@ -37,7 +37,7 @@ describe 'App' do
         body
       )
       MergeJob.stub(:perform_async, true) do
-        post '/github_events', body, 'HTTP_X_HUB_SIGNATURE' => signature
+        post '/new-pull-request', body, 'HTTP_X_HUB_SIGNATURE' => signature, 'HTTP_X_GITHUB_EVENT' => 'pull_request'
       end
       assert last_response.ok?
       assert_equal 'OK', last_response.body

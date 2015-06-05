@@ -1,4 +1,5 @@
 require 'dotenv/tasks'
+require 'rake/testtask'
 
 task app: :dotenv do
   require_relative './app'
@@ -18,4 +19,10 @@ namespace :db do
       Sequel::Migrator.run(db, 'db/migrations')
     end
   end
+end
+
+Rake::TestTask.new do |t|
+  t.libs << 'spec'
+  t.test_files = FileList['spec/*_spec.rb']
+  t.verbose = true
 end
