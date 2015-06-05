@@ -18,4 +18,5 @@ group :test do
   gem 'minitest'
   gem 'rack-test'
   gem 'simplecov', require: false
+  gem 'database_cleaner'
 end

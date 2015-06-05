@@ -6,6 +6,7 @@ GEM
     celluloid (0.16.0)
       timers (~> 4.0.0)
     connection_pool (2.2.0)
+    database_cleaner (1.4.1)
     docile (1.1.5)
     dotenv (2.0.1)
     faraday (0.9.1)
@@ -80,6 +81,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  database_cleaner
   dotenv
   minitest
   octokit
