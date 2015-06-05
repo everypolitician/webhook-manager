@@ -8,9 +8,11 @@ $LOAD_PATH << File.expand_path('../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
 require 'helpers'
+require 'app/models'
 require 'app/jobs'
 
 configure do
+  set :database, DB
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
 end
 

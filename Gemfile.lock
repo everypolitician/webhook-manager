@@ -13,11 +13,13 @@ GEM
     multipart-post (2.0.0)
     octokit (3.8.0)
       sawyer (~> 0.6.0, >= 0.5.3)
+    pg (0.18.2)
     puma (2.11.3)
       rack (>= 1.1, < 2.0)
     rack (1.6.1)
     rack-protection (1.5.3)
       rack
+    rake (10.4.2)
     redis (3.2.1)
     redis-namespace (1.5.2)
       redis (~> 3.0, >= 3.0.4)
@@ -45,7 +47,12 @@ PLATFORMS
 DEPENDENCIES
   dotenv
   octokit
+  pg
   puma
+  rake
   sequel
   sidekiq
   sinatra
+
+BUNDLED WITH
+   1.10.3
