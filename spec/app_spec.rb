@@ -1,17 +1,9 @@
-ENV['RACK_ENV'] = 'test'
-
-require 'simplecov'
-SimpleCov.start
-
-require 'minitest/autorun'
-require 'rack/test'
-require_relative '../app'
+require 'spec_helper'
 
 describe 'App' do
-  include Rack::Test::Methods
-
-  def app
-    Sinatra::Application
+  it 'has a homepage' do
+    get '/'
+    assert last_response.ok?
   end
 
   describe 'GitHub webhooks' do
