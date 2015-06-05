@@ -7,8 +7,22 @@ describe 'App' do
   end
 
   describe 'login' do
-    it 'creates a new user' do
+    it 'creates a new user if none found' do
       assert_difference 'User.count', 1 do
+        get '/auth/github'
+        follow_redirect!
+      end
+      assert_equal 'http://example.org/auth/github/callback', last_request.url
+    end
+
+    it 'uses existing user if one exists' do
+      User.create(
+        name: 'Bob',
+        email: 'bob@example.org',
+        github_uid: '123545',
+        github_token: 'abc123'
+      )
+      assert_difference 'User.count', 0 do
         get '/auth/github'
         follow_redirect!
       end
