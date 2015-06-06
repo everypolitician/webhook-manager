@@ -20,4 +20,5 @@ group :test do
   gem 'rack-test'
   gem 'simplecov', require: false
   gem 'database_cleaner'
+  gem 'webmock'
 end
