@@ -24,4 +24,8 @@ module Helpers
     )
     return halt 500, "Signatures didn't match!" unless signatures_match
   end
+
+  def current_user
+    @current_user ||= User[session[:user_id]]
+  end
 end
