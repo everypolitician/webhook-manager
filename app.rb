@@ -48,7 +48,7 @@ get '/auth/github/callback' do
     )
     session[:user_id] = user.id
   end
-  flash[:notice] = 'You have successfully logged in with Twitter'
+  flash[:notice] = 'You have successfully logged in with GitHub'
   redirect to('/')
 end
 

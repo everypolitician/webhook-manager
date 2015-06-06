@@ -25,6 +25,10 @@ describe 'App' do
         follow_redirect!
       end
       assert_equal 'http://example.org/auth/github/callback', last_request.url
+      follow_redirect!
+      assert last_response.body.include?(
+        'You have successfully logged in with GitHub'
+      )
     end
 
     it 'uses existing user if one exists' do
@@ -39,6 +43,15 @@ describe 'App' do
         follow_redirect!
       end
       assert_equal 'http://example.org/auth/github/callback', last_request.url
+    end
+  end
+
+  describe 'logout' do
+    it 'redirects to the homepage' do
+      get '/logout'
+      follow_redirect!
+      assert_equal 'http://example.org/', last_request.url
+      assert last_response.body.include?('You have been logged out')
     end
   end
 
