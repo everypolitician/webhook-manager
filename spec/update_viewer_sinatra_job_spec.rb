@@ -1,61 +1,49 @@
 require 'spec_helper'
 
 describe UpdateViewerSinatraJob do
-  class UpdateViewerSinatraJob
-    def github
-      @github ||= Minitest::Mock.new
-    end
-  end
   subject { UpdateViewerSinatraJob.new }
 
-  it "doesn't run when push isn't to master" do
-    subject.perform({})
-    subject.github.verify
+  describe 'push_ref_is_master?' do
+    it 'is true when ref is master' do
+      subject.push = { 'ref' => 'refs/heads/master' }
+      assert subject.push_ref_is_master?
+    end
+
+    it 'is false when ref is not master' do
+      subject.push = { 'ref' => 'refs/heads/develop' }
+      refute subject.push_ref_is_master?
+    end
   end
 
-  it 'creates a pull request when push is to master' do
-    subject.github.expect(
-      :contents,
-      { name: 'DATASOURCE', path: 'DATASOURCE', sha: 'abc123' },
-      [ENV['VIEWER_SINATRA_REPO'], { path: 'DATASOURCE' }]
-    )
-    subject.github.expect(
-      :ref,
-      { object: { sha: 'abc123' } },
-      [ENV['VIEWER_SINATRA_REPO'], 'heads/master']
-    )
-    subject.github.expect(
-      :create_ref,
-      true,
-      [ENV['VIEWER_SINATRA_REPO'], String, 'abc123']
-    )
-    subject.github.expect(
-      :update_contents,
-      true,
-      [
-        ENV['VIEWER_SINATRA_REPO'],
-        'DATASOURCE',
-        'Update DATASOURCE',
-        'abc123',
-        String,
-        Hash
-      ]
-    )
-    subject.github.expect(
-      :create_pull_request,
-      true,
-      [ENV['VIEWER_SINATRA_REPO'], 'master', String, String]
-    )
+  describe 'countries_json_pushed?' do
+    it 'is true when countries.json is added or modified' do
+      subject.push = {
+        'commits' => [
+          { 'added' => ['countries.json'], 'modified' => [] }
+        ]
+      }
+      assert subject.countries_json_pushed?
+    end
 
-    subject.perform(
-      'ref' => 'refs/heads/master',
-      'commits' => [
-        {
-          'added' => ['countries.json'],
-          'modified' => []
-        }
-      ]
-    )
-    subject.github.verify
+    it 'is false when countries.json is not changed or modified' do
+      subject.push = {
+        'commits' => [
+          { 'added' => ['README'], 'modified' => [] }
+        ]
+      }
+      refute subject.countries_json_pushed?
+    end
+  end
+
+  describe 'push_valid?' do
+    it 'is true for countries.json pushed to master' do
+      subject.push = {
+        'ref' => 'refs/heads/master',
+        'commits' => [
+          { 'added' => ['countries.json'], 'modified' => [] }
+        ]
+      }
+      assert subject.push_valid?
+    end
   end
 end

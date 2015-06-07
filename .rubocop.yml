@@ -1,6 +1,4 @@
 ---
-inherit_from: .rubocop_todo.yml
-
 Style/Documentation:
   Exclude:
   - spec/**/*.rb
@@ -16,3 +14,8 @@ Style/ClassAndModuleChildren:
 Style/GlobalVars:
   Exclude:
   - Vagrantfile
+
+Metrics/MethodLength:
+  Max: 11
+  Include:
+  - spec/support/assertions.rb

@@ -7,7 +7,7 @@ describe Github do
 
   GithubDummyClient = Struct.new(:login, :access_token)
 
-  let(:subject) { TestDummy.new }
+  subject { TestDummy.new }
 
   describe '#github' do
     it 'is an Octokit::Client' do
