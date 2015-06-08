@@ -31,6 +31,10 @@ end
 use Rack::Flash
 
 get '/' do
+  if current_user
+    @application = Application.new
+    @applications = current_user.applications
+  end
   erb :index
 end
 
@@ -85,4 +89,17 @@ post '/everypolitician-data-push' do
     UpdateViewerSinatraJob.perform_async(push)
   end
   'OK'
+end
+
+post '/applications' do
+  halt if current_user.nil?
+  @applications = current_user.applications
+  @application = Application.new(params[:application])
+  @application.user_id = current_user.id
+  if @application.valid?
+    @application.save
+    redirect to('/')
+  else
+    erb :index
+  end
 end
