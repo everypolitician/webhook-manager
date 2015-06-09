@@ -1,4 +1,4 @@
-require 'datasource_update'
+require 'github_file_updater'
 
 # Update viewer-sinatra repo with new countries from push event.
 class UpdateViewerSinatraJob
@@ -13,7 +13,7 @@ class UpdateViewerSinatraJob
       "#{push['after']}/countries.json"
     return unless push_valid?
     github_repository = ENV.fetch('VIEWER_SINATRA_REPO')
-    updater = DatasourceUpdate.new(github_repository, 'DATASOURCE')
+    updater = GithubFileUpdater.new(github_repository, 'DATASOURCE')
     updater.update(countries_json_url)
   end
 

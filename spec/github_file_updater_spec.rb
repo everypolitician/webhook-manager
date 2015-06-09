@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe DatasourceUpdate do
+describe GithubFileUpdater do
   let(:github) { Minitest::Mock.new }
   subject do
-    DatasourceUpdate.new(ENV['VIEWER_SINATRA_REPO'], 'DATASOURCE', github)
+    GithubFileUpdater.new(ENV['VIEWER_SINATRA_REPO'], 'DATASOURCE', github)
   end
   let(:countries_json_url) do
     'https://raw.githubusercontent.com/everypolitician/everypolitician-data/' \

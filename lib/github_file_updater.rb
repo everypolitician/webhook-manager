@@ -2,7 +2,7 @@ require 'date'
 require 'github'
 
 # Update GitHub file and open pull request
-class DatasourceUpdate
+class GithubFileUpdater
   attr_reader :github_repository
   attr_reader :file_path
   attr_reader :github
