@@ -28,18 +28,25 @@ class GithubFileUpdater
     @file ||= github.contents(github_repository, path: file_path)
   end
 
+  def file_exists?
+    !file.nil?
+  rescue Octokit::NotFound
+    false
+  end
+
   def create_ref
     github.create_ref(github_repository, "heads/#{branch_name}", master_sha)
   end
 
   def update_contents(contents)
-    github.update_contents(
+    options = { branch: branch_name }
+    options[:sha] = file[:sha] if file_exists?
+    github.create_contents(
       github_repository,
-      file[:path],
+      file_path,
       message,
-      file[:sha],
       contents,
-      branch: branch_name
+      options
     )
   end
 
@@ -59,6 +66,6 @@ class GithubFileUpdater
   end
 
   def message
-    @message ||= "Update #{file[:name]}"
+    @message ||= "Update #{file_path}"
   end
 end

@@ -27,15 +27,15 @@ describe GithubFileUpdater do
       [ENV['VIEWER_SINATRA_REPO'], "heads/#{subject.branch_name}", 'def456']
     )
     github.expect(
-      :update_contents,
+      :create_contents,
       true,
       [
         ENV['VIEWER_SINATRA_REPO'],
         'DATASOURCE',
         'Update DATASOURCE',
-        'abc123',
         countries_json_url,
-        branch: subject.branch_name
+        branch: subject.branch_name,
+        sha: 'abc123'
       ]
     )
     github.expect(
