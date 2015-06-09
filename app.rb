@@ -118,6 +118,12 @@ post '/applications/:application_id/submissions' do
   end
 end
 
+get '/applications/:application_id/submissions' do
+  content_type :json
+  @application = Application[params[:application_id]]
+  @application.submissions_dataset.to_json
+end
+
 get '/applications/:application_id/submissions/:id' do
   @application = Application[params[:application_id]]
   @submission = application.submissions_dataset[id: params[:id]]
