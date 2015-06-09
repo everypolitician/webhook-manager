@@ -1,6 +1,7 @@
 require 'github'
 require 'open-uri'
 require 'github_file_updater'
+require 'csv'
 
 # Takes an approved 3rd party submission and adds it to everypolitician-data
 class AcceptSubmissionJob
@@ -30,7 +31,7 @@ class AcceptSubmissionJob
     data = JSON.parse(submission.data)
     csv << CSV::Row.new(*csv_data_for(data))
     updater = GithubFileUpdater.new(github_repository, csv_path)
-    updater.update(csv)
+    updater.update(csv.to_s)
   end
 
   def csv_from_github
