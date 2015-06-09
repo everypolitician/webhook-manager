@@ -5,15 +5,20 @@ class UpdateViewerSinatraJob
   include Sidekiq::Worker
 
   attr_accessor :push
+  attr_reader :github_updater
+
+  def initialize(github_updater = GithubFileUpdater)
+    @github_updater = github_updater
+  end
 
   def perform(push)
     @push = push
+    return unless push_valid?
     countries_json_url = 'https://raw.githubusercontent.com/' \
       'everypolitician/everypolitician-data/' \
       "#{push['after']}/countries.json"
-    return unless push_valid?
     github_repository = ENV.fetch('VIEWER_SINATRA_REPO')
-    updater = GithubFileUpdater.new(github_repository, 'DATASOURCE')
+    updater = github_updater.new(github_repository, 'DATASOURCE')
     updater.update(countries_json_url)
   end
 

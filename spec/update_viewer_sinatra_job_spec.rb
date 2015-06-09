@@ -1,7 +1,38 @@
 require 'spec_helper'
 
 describe UpdateViewerSinatraJob do
-  subject { UpdateViewerSinatraJob.new }
+  let(:github_updater) { Minitest::Mock.new }
+  subject { UpdateViewerSinatraJob.new(github_updater) }
+
+  describe 'perform' do
+    it "doesn't run anything if push isn't valid" do
+      subject.perform({})
+      github_updater.verify
+    end
+
+    it 'updates DATASOURCE with countries_json_url if push is valid' do
+      push = {
+        'after' => 'f77e664',
+        'ref' => 'refs/heads/master',
+        'commits' => [
+          { 'added' => ['countries.json'], 'modified' => [] }
+        ]
+      }
+      countries_json_url = 'https://raw.githubusercontent.com/' \
+        'everypolitician/everypolitician-data/' \
+        "#{push['after']}/countries.json"
+      updater = Minitest::Mock.new
+      github_updater.expect(
+        :new,
+        updater,
+        [ENV['VIEWER_SINATRA_REPO'], 'DATASOURCE']
+      )
+      updater.expect(:update, true, [countries_json_url])
+      subject.perform(push)
+      github_updater.verify
+      updater.verify
+    end
+  end
 
   describe 'push_ref_is_master?' do
     it 'is true when ref is master' do
