@@ -1,30 +1,32 @@
 require 'spec_helper'
 
 describe DatasourceUpdate do
-  class DatasourceUpdate
-    def github
-      @github ||= Minitest::Mock.new
-    end
+  let(:github) { Minitest::Mock.new }
+  subject do
+    DatasourceUpdate.new(ENV['VIEWER_SINATRA_REPO'], 'DATASOURCE', github)
   end
-  subject { DatasourceUpdate.new('deedfeed') }
+  let(:countries_json_url) do
+    'https://raw.githubusercontent.com/everypolitician/everypolitician-data/' \
+      'bb09fbe/countries.json'
+  end
 
   before :each do
-    subject.github.expect(
+    github.expect(
       :contents,
       { name: 'DATASOURCE', path: 'DATASOURCE', sha: 'abc123' },
       [ENV['VIEWER_SINATRA_REPO'], { path: 'DATASOURCE' }]
     )
-    subject.github.expect(
+    github.expect(
       :ref,
       { object: { sha: 'def456' } },
       [ENV['VIEWER_SINATRA_REPO'], 'heads/master']
     )
-    subject.github.expect(
+    github.expect(
       :create_ref,
       true,
       [ENV['VIEWER_SINATRA_REPO'], "heads/#{subject.branch_name}", 'def456']
     )
-    subject.github.expect(
+    github.expect(
       :update_contents,
       true,
       [
@@ -32,11 +34,11 @@ describe DatasourceUpdate do
         'DATASOURCE',
         'Update DATASOURCE',
         'abc123',
-        subject.countries_json_url,
+        countries_json_url,
         branch: subject.branch_name
       ]
     )
-    subject.github.expect(
+    github.expect(
       :create_pull_request,
       true,
       [
@@ -50,15 +52,8 @@ describe DatasourceUpdate do
 
   describe '#update' do
     it 'creates a pull request' do
-      subject.update
-      subject.github.verify
+      subject.update(countries_json_url)
+      github.verify
     end
-  end
-
-  it 'updates the DATASOURCE with the correct url' do
-    countries_json_url = 'https://raw.githubusercontent.com/' \
-      'everypolitician/everypolitician-data/' \
-      'deedfeed/countries.json'
-    assert_equal countries_json_url, subject.countries_json_url
   end
 end

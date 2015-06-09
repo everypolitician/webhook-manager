@@ -1,68 +1,64 @@
 require 'date'
 require 'github'
 
-# Update viewer-sinatra's DATASOURCE file.
+# Update GitHub file and open pull request
 class DatasourceUpdate
-  include Github
-
+  attr_reader :github_repository
+  attr_reader :file_path
+  attr_reader :github
   attr_reader :branch_name
-  attr_reader :countries_json_url
 
-  def initialize(new_sha)
+  def initialize(github_repository, file_path, github = Github.github)
+    @github_repository = github_repository
+    @file_path = file_path
+    @github = github
     timestamp = DateTime.now.strftime('%Y%m%d%H%M%S')
-    @branch_name = "update_countries.json-#{timestamp}"
-    @countries_json_url = 'https://raw.githubusercontent.com/' \
-      'everypolitician/everypolitician-data/' \
-      "#{new_sha}/countries.json"
+    @branch_name = "data-update-#{timestamp}"
   end
 
-  def update
+  def update(contents)
     create_ref
-    update_contents
+    update_contents(contents)
     create_pull_request
   end
 
   private
 
-  def create_ref
-    github.create_ref(viewer_sinatra_repo, "heads/#{branch_name}", master_sha)
+  def file
+    @file ||= github.contents(github_repository, path: file_path)
   end
 
-  def update_contents
+  def create_ref
+    github.create_ref(github_repository, "heads/#{branch_name}", master_sha)
+  end
+
+  def update_contents(contents)
     github.update_contents(
-      viewer_sinatra_repo,
-      datasource[:path],
+      github_repository,
+      file[:path],
       message,
-      datasource[:sha],
-      countries_json_url,
+      file[:sha],
+      contents,
       branch: branch_name
     )
   end
 
   def create_pull_request
     github.create_pull_request(
-      viewer_sinatra_repo,
+      github_repository,
       'master',
       branch_name,
       message
     )
   end
 
-  def viewer_sinatra_repo
-    @viewer_sinatra_repo ||= ENV.fetch('VIEWER_SINATRA_REPO')
-  end
-
   def master_sha
     @master_sha ||= github.ref(
-      viewer_sinatra_repo, 'heads/master'
+      github_repository, 'heads/master'
     )[:object][:sha]
   end
 
-  def datasource
-    @datasource ||= github.contents(viewer_sinatra_repo, path: 'DATASOURCE')
-  end
-
   def message
-    @message ||= "Update #{datasource[:name]}"
+    @message ||= "Update #{file[:name]}"
   end
 end

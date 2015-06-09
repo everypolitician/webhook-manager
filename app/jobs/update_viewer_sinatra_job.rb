@@ -8,7 +8,13 @@ class UpdateViewerSinatraJob
 
   def perform(push)
     @push = push
-    DatasourceUpdate.new(push['after']).update if push_valid?
+    countries_json_url = 'https://raw.githubusercontent.com/' \
+      'everypolitician/everypolitician-data/' \
+      "#{push['after']}/countries.json"
+    return unless push_valid?
+    github_repository = ENV.fetch('VIEWER_SINATRA_REPO')
+    updater = DatasourceUpdate.new(github_repository, 'DATASOURCE')
+    updater.update(countries_json_url)
   end
 
   def push_valid?
