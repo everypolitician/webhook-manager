@@ -77,7 +77,7 @@ describe 'App' do
                'HTTP_X_GITHUB_EVENT' => 'pull_request'
         end
         assert last_response.ok?
-        assert_equal 'OK', last_response.body
+        assert_equal 'MergeJob started for pull request.', last_response.body
       end
 
       it "doesn't create a MergeJob if not a pull_request" do
@@ -89,7 +89,8 @@ describe 'App' do
                'HTTP_X_GITHUB_EVENT' => 'not_a_pull_request'
         end
         assert last_response.ok?
-        assert_equal 'OK', last_response.body
+        assert_equal 'No pull request detected, doing nothing.',
+                     last_response.body
       end
     end
 
@@ -103,7 +104,8 @@ describe 'App' do
                'HTTP_X_GITHUB_EVENT' => 'push'
         end
         assert last_response.ok?
-        assert_equal 'OK', last_response.body
+        assert_equal 'UpdateViewerSinatraJob started for push event',
+                     last_response.body
       end
 
       it "doesn't create an UpdateViewerSinatraJob if not a push" do
@@ -115,7 +117,8 @@ describe 'App' do
                'HTTP_X_GITHUB_EVENT' => 'not_a_push'
         end
         assert last_response.ok?
-        assert_equal 'OK', last_response.body
+        assert_equal 'No push event detected, doing nothing.',
+                     last_response.body
       end
     end
   end

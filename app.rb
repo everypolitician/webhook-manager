@@ -77,8 +77,10 @@ post '/new-pull-request' do
   if type == 'pull_request'
     pull_request = JSON.parse(payload_body)
     MergeJob.perform_async(pull_request)
+    'MergeJob started for pull request.'
+  else
+    'No pull request detected, doing nothing.'
   end
-  'OK'
 end
 
 # Check for new countries
@@ -87,8 +89,10 @@ post '/everypolitician-data-push' do
   if type == 'push'
     push = JSON.parse(payload_body)
     UpdateViewerSinatraJob.perform_async(push)
+    'UpdateViewerSinatraJob started for push event'
+  else
+    'No push event detected, doing nothing.'
   end
-  'OK'
 end
 
 post '/applications' do
