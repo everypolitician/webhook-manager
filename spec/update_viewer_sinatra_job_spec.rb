@@ -15,7 +15,11 @@ describe UpdateViewerSinatraJob do
         'after' => 'f77e664',
         'ref' => 'refs/heads/master',
         'commits' => [
-          { 'added' => ['countries.json'], 'modified' => [] }
+          {
+            'message' => 'Foo',
+            'added' => ['countries.json'],
+            'modified' => []
+          }
         ]
       }
       countries_json_url = 'https://raw.githubusercontent.com/' \
@@ -27,7 +31,11 @@ describe UpdateViewerSinatraJob do
         updater,
         [ENV['VIEWER_SINATRA_REPO'], 'DATASOURCE']
       )
-      updater.expect(:update, true, [countries_json_url])
+      updater.expect(
+        :update,
+        true,
+        [countries_json_url, "Commits:\n\n- Foo\n\n"]
+      )
       subject.perform(push)
       github_updater.verify
       updater.verify
@@ -75,6 +83,18 @@ describe UpdateViewerSinatraJob do
         ]
       }
       assert subject.push_valid?
+    end
+  end
+
+  describe 'pull_request_body' do
+    let(:push) { JSON.parse(File.read('spec/fixtures/push.json')) }
+    it 'creates a pull request body' do
+      body = "Commits:\n\n- Tonga: Initial data\n- refresh countries.json\n" \
+        "- Merge pull request #229 from everypolitician/tonga\n\n" \
+        'https://github.com/everypolitician/everypolitician-data/compare/' \
+        'a8544952a1d6...99bbb64c02b7'
+      subject.push = push
+      assert_equal body, subject.pull_request_body
     end
   end
 end

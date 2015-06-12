@@ -19,7 +19,23 @@ class UpdateViewerSinatraJob
       "#{push['after']}/countries.json"
     github_repository = ENV.fetch('VIEWER_SINATRA_REPO')
     updater = github_updater.new(github_repository, 'DATASOURCE')
-    updater.update(countries_json_url)
+    updater.update(countries_json_url, pull_request_body)
+  end
+
+  def pull_request_body
+    @full_description ||= [
+      "Commits:\n",
+      list_of_commit_messages,
+      '',
+      push['compare']
+    ].join("\n")
+  end
+
+  def list_of_commit_messages
+    messages = push['commits'].map do |commit|
+      commit['message'].lines.first.chomp
+    end
+    messages.map { |m| "- #{m}" }.join("\n")
   end
 
   def push_valid?
