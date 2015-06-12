@@ -64,12 +64,7 @@ end
 
 get '/urls.json' do
   content_type 'application/json'
-  JSON.pretty_generate(
-    webhook_receivers: {
-      pull_requests: url('/new-pull-request'),
-      pushes: url('/everypolitician-data-push')
-    }
-  )
+  JSON.pretty_generate(webhook_event_handler_url: url('/event_handler'))
 end
 
 post '/new-pull-request' do
