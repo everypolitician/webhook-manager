@@ -16,10 +16,10 @@ class GithubFileUpdater
     @branch_name = "data-update-#{timestamp}"
   end
 
-  def update(contents)
+  def update(contents, body = nil)
     create_ref
     update_contents(contents)
-    create_pull_request
+    create_pull_request(body)
   end
 
   private
@@ -50,12 +50,13 @@ class GithubFileUpdater
     )
   end
 
-  def create_pull_request
+  def create_pull_request(body = nil)
     github.create_pull_request(
       github_repository,
       'master',
       branch_name,
-      message
+      message,
+      body
     )
   end
 

@@ -45,7 +45,8 @@ describe GithubFileUpdater do
         ENV['VIEWER_SINATRA_REPO'],
         'master',
         subject.branch_name,
-        'Update DATASOURCE'
+        'Update DATASOURCE',
+        nil
       ]
     )
   end
