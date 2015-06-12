@@ -95,6 +95,19 @@ post '/everypolitician-data-push' do
   end
 end
 
+post '/event_handler' do
+  case request.env['HTTP_X_GITHUB_EVENT']
+  when 'pull_request'
+    HandleEverypoliticianDataPullRequestJob.perform_async(payload_body)
+    'HandleEverypoliticianDataPullRequestJob queued'
+  when 'deployment'
+    DeployViewerSinatraPullRequestJob.perform_async(payload_body)
+    'DeployViewerSinatraPullRequestJob queued'
+  else
+    "Unknown event type: #{request.env['HTTP_X_GITHUB_EVENT']}"
+  end
+end
+
 post '/applications' do
   halt if current_user.nil?
   @applications = current_user.applications
