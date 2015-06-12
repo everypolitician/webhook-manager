@@ -31,6 +31,10 @@ end
 use Rack::Flash
 
 get '/' do
+  if current_user
+    @application = Application.new
+    @applications = current_user.applications
+  end
   erb :index
 end
 
@@ -85,4 +89,57 @@ post '/everypolitician-data-push' do
     UpdateViewerSinatraJob.perform_async(push)
   end
   'OK'
+end
+
+post '/applications' do
+  halt if current_user.nil?
+  @applications = current_user.applications
+  @application = Application.new(params[:application])
+  @application.user_id = current_user.id
+  @application.secret = SecureRandom.hex(20)
+  if @application.valid?
+    @application.save
+    redirect to('/')
+  else
+    erb :index
+  end
+end
+
+post '/applications/:application_id/submissions' do
+  application = Application[params[:application_id]]
+  submission_data = params[:submission]
+  # submission_data[:data] = JSON.generate(submission_data[:data])
+  begin
+    submission = application.add_submission(submission_data)
+    flash[:notice] = 'Your update has been submitted for approval'
+    redirect to("/applications/#{application.id}/submissions/#{submission.id}")
+  rescue Sequel::ValidationFailed => e
+    "Invalid submission: #{e.message}"
+  end
+end
+
+get '/applications/:application_id/submissions' do
+  content_type :json
+  @application = Application[params[:application_id]]
+  @application.submissions_dataset.to_json
+end
+
+get '/applications/:application_id/submissions/:id' do
+  @application = Application[params[:application_id]]
+  @submission = application.submissions_dataset[id: params[:id]]
+  erb :new_submission
+end
+
+# Mounted under /accept_submission so we can use basic auth
+class AcceptSubmission < Sinatra::Base
+  use Rack::Auth::Basic do |application_id, secret|
+    Application[application_id].secret == secret
+  end
+
+  post '/:id' do
+    application = Application[request.env['REMOTE_USER']]
+    submission = application.submissions_dataset[id: params[:id]]
+    AcceptSubmissionJob.perform_async(submission.id) if submission
+    'OK'
+  end
 end

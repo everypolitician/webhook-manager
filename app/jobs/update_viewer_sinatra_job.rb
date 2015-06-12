@@ -1,14 +1,25 @@
-require 'datasource_update'
+require 'github_file_updater'
 
 # Update viewer-sinatra repo with new countries from push event.
 class UpdateViewerSinatraJob
   include Sidekiq::Worker
 
   attr_accessor :push
+  attr_reader :github_updater
+
+  def initialize(github_updater = GithubFileUpdater)
+    @github_updater = github_updater
+  end
 
   def perform(push)
     @push = push
-    DatasourceUpdate.new(push['after']).update if push_valid?
+    return unless push_valid?
+    countries_json_url = 'https://raw.githubusercontent.com/' \
+      'everypolitician/everypolitician-data/' \
+      "#{push['after']}/countries.json"
+    github_repository = ENV.fetch('VIEWER_SINATRA_REPO')
+    updater = github_updater.new(github_repository, 'DATASOURCE')
+    updater.update(countries_json_url)
   end
 
   def push_valid?

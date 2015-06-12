@@ -3,6 +3,8 @@ module Github
   def github
     @github ||= Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
   end
+  module_function :github
+  public :github
 
   def clone_url(uri)
     repo_clone_url = URI.parse(uri)
