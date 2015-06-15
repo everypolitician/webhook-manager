@@ -1,8 +1,6 @@
 <% if current_user %>
 
-  <p>Logged in as <%= current_user.name %></p>
-
-  <h2>Applications</h2>
+  <h1>Applications</h1>
   <ul>
     <% @applications.each do |application| %>
       <li><%= application.name %></li>
