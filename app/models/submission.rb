@@ -5,6 +5,6 @@ class Submission < Sequel::Model
 
   def validate
     super
-    validates_presence [:data, :country, :person_id, :application_id]
+    validates_presence [:country, :person_id, :application_id]
   end
 end

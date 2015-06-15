@@ -108,9 +108,18 @@ end
 post '/applications/:application_id/submissions' do
   application = Application[params[:application_id]]
   submission_data = params[:submission]
-  submission_data[:data] = JSON.generate(submission_data[:data])
+  updates = submission_data.delete('data')
   begin
-    submission = application.add_submission(submission_data)
+    submission = nil
+    Submission.db.transaction do
+      submission = application.add_submission(submission_data)
+      updates.each do |field, value|
+        submission.add_update(
+          field: field,
+          value: value
+        )
+      end
+    end
     flash[:notice] = 'Your update has been submitted for approval'
     redirect to("/applications/#{application.id}/submissions/#{submission.id}")
   rescue Sequel::ValidationFailed => e
@@ -121,7 +130,7 @@ end
 get '/applications/:application_id/submissions' do
   content_type :json
   @application = Application[params[:application_id]]
-  @application.submissions_dataset.to_json
+  @application.submissions_dataset.to_json(include: :updates)
 end
 
 get '/applications/:application_id/submissions/:id' do

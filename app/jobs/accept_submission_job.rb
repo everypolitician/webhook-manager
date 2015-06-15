@@ -29,8 +29,7 @@ class AcceptSubmissionJob
 
   def accept_submission
     csv = csv_from_github
-    data = JSON.parse(submission.data)
-    csv << CSV::Row.new(*csv_data_for(data))
+    csv << CSV::Row.new(*csv_data_for(submission.updates))
     updater = GithubFileUpdater.new(github_repository, csv_path)
     updater.update(csv.to_s)
   end
@@ -59,12 +58,12 @@ class AcceptSubmissionJob
     )
   end
 
-  def csv_data_for(data)
+  def csv_data_for(updates)
     timestamp = Time.now.to_i
     headers = [:id, :field, :old, :new, :timestamp]
     rows = [headers]
-    data.each do |key, value|
-      rows << [submission.person_id, key, nil, value, timestamp]
+    updates.each do |update|
+      rows << [submission.person_id, update.field, nil, update.value, timestamp]
     end
     rows
   end
