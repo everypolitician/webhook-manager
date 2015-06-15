@@ -108,7 +108,7 @@ end
 post '/applications/:application_id/submissions' do
   application = Application[params[:application_id]]
   submission_data = params[:submission]
-  # submission_data[:data] = JSON.generate(submission_data[:data])
+  submission_data[:data] = JSON.generate(submission_data[:data])
   begin
     submission = application.add_submission(submission_data)
     flash[:notice] = 'Your update has been submitted for approval'
@@ -126,7 +126,7 @@ end
 
 get '/applications/:application_id/submissions/:id' do
   @application = Application[params[:application_id]]
-  @submission = application.submissions_dataset[id: params[:id]]
+  @submission = @application.submissions_dataset[id: params[:id]]
   erb :new_submission
 end
 
