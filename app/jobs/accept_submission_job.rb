@@ -54,7 +54,8 @@ class AcceptSubmissionJob
   def csv_path
     @csv_path ||= File.join(
       country['sources_directory'],
-      "#{submission.application.name}.csv"
+      submission.application.name,
+      'updates.csv'
     )
   end
 
