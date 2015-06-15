@@ -2,6 +2,7 @@ require 'github'
 require 'open-uri'
 require 'github_file_updater'
 require 'csv'
+require 'date'
 
 # Takes an approved 3rd party submission and adds it to everypolitician-data
 class AcceptSubmissionJob
@@ -58,12 +59,12 @@ class AcceptSubmissionJob
   end
 
   def csv_data_for(data)
-    headers = [:id]
-    values = [submission.person_id]
+    timestamp = Time.now.to_i
+    headers = [:id, :field, :old, :new, :timestamp]
+    rows = [headers]
     data.each do |key, value|
-      headers << key
-      values << value
+      rows << [submission.person_id, key, nil, value, timestamp]
     end
-    [headers, values]
+    rows
   end
 end
