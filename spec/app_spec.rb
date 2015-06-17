@@ -11,10 +11,7 @@ describe 'App' do
     assert last_response.ok?
     assert_equal(
       JSON.parse(last_response.body),
-      'webhook_receivers' => {
-        'pull_requests' => 'http://example.org/new-pull-request',
-        'pushes' => 'http://example.org/everypolitician-data-push'
-      }
+      'webhook_event_handler_url' => 'http://example.org/event_handler'
     )
   end
 
