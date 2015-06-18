@@ -4,6 +4,10 @@ require 'openssl'
 module Helpers
   HMAC_DIGEST = OpenSSL::Digest.new('sha1')
 
+  def payload
+    JSON.parse(payload_body)
+  end
+
   def payload_body
     request.body.rewind
     payload_body = request.body.read
