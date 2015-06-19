@@ -48,12 +48,15 @@ namespace :webhooks do
         secret: ENV['GITHUB_WEBHOOK_SECRET']
       }
       options = { events: [:push, :pull_request, :deployment], active: true }
-      github.create_hook(
-        ENV['EVERYPOLITICIAN_DATA_REPO'],
-        'web',
-        config,
-        options
-      )
+      repos = [ENV['EVERYPOLITICIAN_DATA_REPO'], ENV['VIEWER_SINATRA_REPO']]
+      repos.each do |repo|
+        github.create_hook(
+          repo,
+          'web',
+          config,
+          options
+        )
+      end
       puts 'Webhook created'
     end
   end
