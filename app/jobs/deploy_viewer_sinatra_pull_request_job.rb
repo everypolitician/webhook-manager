@@ -20,24 +20,34 @@ class DeployViewerSinatraPullRequestJob
     updater.path = 'DATASOURCE'
     updater.branch = branch_name
     updater.update(countries_json_url)
-    create_pull_request(updater.message) unless existing_pull?
+    pull_request = create_pull_request(updater.message)
+    create_deployment_status(pull_request)
   end
 
   private
 
+  def existing_pull
+    @existing_pull ||= github.pull_requests(viewer_sinatra_repo).find do |pull|
+      pull.head.ref == branch_name
+    end
+  end
+
   def existing_pull?
-    pulls = github.pull_requests(ENV['VIEWER_SINATRA_REPO'])
-    pulls.any? { |pull| pull.head.ref == branch_name }
+    !existing_pull.nil?
   end
 
   def create_pull_request(message)
-    github.create_pull_request(
-      viewer_sinatra_repo,
-      'master',
-      branch_name,
-      message,
-      pull_request_body
-    )
+    if existing_pull?
+      existing_pull
+    else
+      github.create_pull_request(
+        viewer_sinatra_repo,
+        'master',
+        branch_name,
+        message,
+        pull_request_body
+      )
+    end
   end
 
   def pull_request_body
@@ -77,5 +87,13 @@ class DeployViewerSinatraPullRequestJob
 
   def branch_name
     "everypolitician-data-pr-#{pull_request_number}"
+  end
+
+  def create_deployment_status(pull_request)
+    github.create_deployment_status(
+      deployment['deployment']['url'],
+      'success',
+      target_url: pull_request.html_url
+    )
   end
 end
