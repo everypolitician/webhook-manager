@@ -1,5 +1,3 @@
-require 'github_pull_request'
-
 # Creates or updates viewer-sinatra pull requests
 class DeployViewerSinatraPullRequestJob
   include Sidekiq::Worker
@@ -7,13 +5,10 @@ class DeployViewerSinatraPullRequestJob
   attr_reader :deployment
   attr_reader :github
   attr_reader :github_updater
-  attr_reader :github_pull_requester
 
-  def initialize(github = Github.github, github_updater = GithubFileUpdater,
-                 github_pull_requester = GithubPullRequest)
+  def initialize(github = Github.github, github_updater = GithubFileUpdater)
     @github = github
     @github_updater = github_updater
-    @github_pull_requester = github_pull_requester
   end
 
   def perform(deployment)
@@ -36,8 +31,13 @@ class DeployViewerSinatraPullRequestJob
   end
 
   def create_pull_request(message)
-    pull_request = github_pull_requester.new(github_repository)
-    pull_request.create(branch_name, message, pull_request_body)
+    github.create_pull_request(
+      github_repository,
+      'master',
+      branch_name,
+      message,
+      pull_request_body
+    )
   end
 
   def pull_request_body
