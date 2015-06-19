@@ -55,7 +55,7 @@ describe 'App' do
   describe 'GitHub webhooks' do
     it 'rejects invalid signatures' do
       assert_difference 'MergeJob.jobs.size', 0 do
-        post '/new-pull-request',
+        post '/event_handler',
              {},
              'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid',
              'HTTP_X_GITHUB_EVENT' => 'pull_request'
@@ -64,58 +64,42 @@ describe 'App' do
       assert_equal "Signatures didn't match!", last_response.body
     end
 
-    describe '/new-pull-request' do
-      it 'creates a new MergeJob on pull_request' do
+    describe '/event_handler' do
+      it 'creates a HandleEverypoliticianDataPullRequestJob on pull_request' do
         body = '{}'
-        assert_difference 'MergeJob.jobs.size', 1 do
-          post '/new-pull-request',
+        assert_difference 'HandleEverypoliticianDataPullRequestJob.jobs.size',
+                          1 do
+          post '/event_handler',
                body,
                'HTTP_X_HUB_SIGNATURE' => body_signature(body),
                'HTTP_X_GITHUB_EVENT' => 'pull_request'
         end
         assert last_response.ok?
-        assert_equal 'MergeJob started for pull request.', last_response.body
-      end
-
-      it "doesn't create a MergeJob if not a pull_request" do
-        body = '{}'
-        assert_difference 'MergeJob.jobs.size', 0 do
-          post '/new-pull-request',
-               body,
-               'HTTP_X_HUB_SIGNATURE' => body_signature(body),
-               'HTTP_X_GITHUB_EVENT' => 'not_a_pull_request'
-        end
-        assert last_response.ok?
-        assert_equal 'No pull request detected, doing nothing.',
-                     last_response.body
-      end
-    end
-
-    describe '/everypolitician-data-push' do
-      it 'creates a new UpdateViewerSinatraJob on push' do
-        body = '{}'
-        assert_difference 'UpdateViewerSinatraJob.jobs.size', 1 do
-          post '/everypolitician-data-push',
-               body,
-               'HTTP_X_HUB_SIGNATURE' => body_signature(body),
-               'HTTP_X_GITHUB_EVENT' => 'push'
-        end
-        assert last_response.ok?
-        assert_equal 'UpdateViewerSinatraJob started for push event',
+        assert_equal 'HandleEverypoliticianDataPullRequestJob queued',
                      last_response.body
       end
 
-      it "doesn't create an UpdateViewerSinatraJob if not a push" do
+      it 'creates a new DeployViewerSinatraPullRequestJob on deployment' do
         body = '{}'
-        assert_difference 'UpdateViewerSinatraJob.jobs.size', 0 do
-          post '/everypolitician-data-push',
+        assert_difference 'DeployViewerSinatraPullRequestJob.jobs.size', 1 do
+          post '/event_handler',
                body,
                'HTTP_X_HUB_SIGNATURE' => body_signature(body),
-               'HTTP_X_GITHUB_EVENT' => 'not_a_push'
+               'HTTP_X_GITHUB_EVENT' => 'deployment'
         end
         assert last_response.ok?
-        assert_equal 'No push event detected, doing nothing.',
+        assert_equal 'DeployViewerSinatraPullRequestJob queued',
                      last_response.body
+      end
+
+      it "doesn't do anything with an unknown event type" do
+        body = '{}'
+        post '/event_handler',
+             body,
+             'HTTP_X_HUB_SIGNATURE' => body_signature(body),
+             'HTTP_X_GITHUB_EVENT' => 'flargle'
+        assert last_response.ok?
+        assert_equal 'Unknown event type: flargle', last_response.body
       end
     end
   end
