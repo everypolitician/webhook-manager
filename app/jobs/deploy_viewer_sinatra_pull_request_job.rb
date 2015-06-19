@@ -16,23 +16,23 @@ class DeployViewerSinatraPullRequestJob
     countries_json_url = 'https://raw.githubusercontent.com/' \
       'everypolitician/everypolitician-data/' \
       "#{everypolitician_data_pull_request.head.sha}/countries.json"
-    updater = github_updater.new(github_repository)
+    updater = github_updater.new(viewer_sinatra_repo)
     updater.path = 'DATASOURCE'
     updater.branch = branch_name
     updater.update(countries_json_url)
-    create_pull_request(updater.message) if existing_pull.nil?
+    create_pull_request(updater.message) unless existing_pull?
   end
 
   private
 
-  def existing_pull
+  def existing_pull?
     pulls = github.pull_requests(ENV['VIEWER_SINATRA_REPO'])
-    pulls.find { |pull| pull[:head][:ref] == branch_name }
+    pulls.any? { |pull| pull.head.ref == branch_name }
   end
 
   def create_pull_request(message)
     github.create_pull_request(
-      github_repository,
+      viewer_sinatra_repo,
       'master',
       branch_name,
       message,
@@ -67,8 +67,8 @@ class DeployViewerSinatraPullRequestJob
     messages.map { |m| "- #{m}" }.join("\n")
   end
 
-  def github_repository
-    @github_repository ||= ENV.fetch('VIEWER_SINATRA_REPO')
+  def viewer_sinatra_repo
+    @viewer_sinatra_repo ||= ENV.fetch('VIEWER_SINATRA_REPO')
   end
 
   def pull_request_number
