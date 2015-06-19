@@ -25,6 +25,7 @@ class HandleEverypoliticianDataPullRequestJob
     github.create_deployment(
       everypolitician_data_repo,
       pull_request['pull_request']['head']['ref'],
+      environment: 'viewer-sinatra',
       payload: { pull_request_number: pull_request['number'] }
     )
   end
