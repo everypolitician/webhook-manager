@@ -1,31 +1,81 @@
+require 'github_pull_request'
+
 # Creates or updates viewer-sinatra pull requests
 class DeployViewerSinatraPullRequestJob
   include Sidekiq::Worker
 
   attr_reader :deployment
+  attr_reader :github
+  attr_reader :github_updater
+  attr_reader :github_pull_requester
+
+  def initialize(github = Github.github, github_updater = GithubFileUpdater,
+                 github_pull_requester = GithubPullRequest)
+    @github = github
+    @github_updater = github_updater
+    @github_pull_requester = github_pull_requester
+  end
 
   def perform(deployment)
     @deployment = deployment
+    countries_json_url = 'https://raw.githubusercontent.com/' \
+      'everypolitician/everypolitician-data/' \
+      "#{everypolitician_data_pull_request.head.sha}/countries.json"
+    updater = github_updater.new(github_repository)
+    updater.path = 'DATASOURCE'
+    updater.branch = branch_name
+    updater.update(countries_json_url)
+    create_pull_request(updater.message) if existing_pull.nil?
+  end
+
+  private
+
+  def existing_pull
     pulls = github.pull_requests(ENV['VIEWER_SINATRA_REPO'])
-    existing_pull = pulls.find do |pull|
-      pull[:head][:ref] == branch_name
-    end
-    if existing_pull
-      update_pull_request(existing_pull)
-    else
-      create_pull_request
-    end
+    pulls.find { |pull| pull[:head][:ref] == branch_name }
   end
 
-  def update_pull_request
-    # Use github.update_contents to update existing pull request branch
+  def create_pull_request(message)
+    pull_request = github_pull_requester.new(github_repository)
+    pull_request.create(branch_name, message, pull_request_body)
   end
 
-  def create_pull_request
-    # Create new branch and update contents then open pull request
+  def pull_request_body
+    @full_description ||= [
+      "Commits:\n",
+      list_of_commit_messages,
+      '',
+      everypolitician_data_pull_request.html_url
+    ].join("\n")
+  end
+
+  def everypolitician_data_pull_request
+    @pull_request ||= github.pull(
+      deployment['repository']['full_name'],
+      pull_request_number
+    )
+  end
+
+  def list_of_commit_messages
+    commits = github.pull_commits(
+      deployment['repository']['full_name'],
+      pull_request_number
+    )
+    messages = commits.map do |commit|
+      commit.commit.message.lines.first.chomp
+    end
+    messages.map { |m| "- #{m}" }.join("\n")
+  end
+
+  def github_repository
+    @github_repository ||= ENV.fetch('VIEWER_SINATRA_REPO')
+  end
+
+  def pull_request_number
+    deployment['deployment']['payload']['pull_request_number']
   end
 
   def branch_name
-    "everypolitician-data-pr-#{deployment['payload']['pull_request_number']}"
+    "everypolitician-data-pr-#{pull_request_number}"
   end
 end
