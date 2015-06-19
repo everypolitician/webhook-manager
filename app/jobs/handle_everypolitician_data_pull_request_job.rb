@@ -5,9 +5,12 @@ class HandleEverypoliticianDataPullRequestJob
   attr_accessor :pull_request
   attr_reader :github
 
-  def perform(pull_request, github = Github.github)
-    @pull_request = pull_request
+  def initialize(github = Github.github)
     @github = github
+  end
+
+  def perform(pull_request)
+    @pull_request = pull_request
     create_deployment_event if valid? && pull_request_updated_countries_json?
   end
 
