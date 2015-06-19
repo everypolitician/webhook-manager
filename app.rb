@@ -67,29 +67,6 @@ get '/urls.json' do
   JSON.pretty_generate(webhook_event_handler_url: url('/event_handler'))
 end
 
-post '/new-pull-request' do
-  type = request.env['HTTP_X_GITHUB_EVENT']
-  if type == 'pull_request'
-    pull_request = JSON.parse(payload_body)
-    MergeJob.perform_async(pull_request)
-    'MergeJob started for pull request.'
-  else
-    'No pull request detected, doing nothing.'
-  end
-end
-
-# Check for new countries
-post '/everypolitician-data-push' do
-  type = request.env['HTTP_X_GITHUB_EVENT']
-  if type == 'push'
-    push = JSON.parse(payload_body)
-    UpdateViewerSinatraJob.perform_async(push)
-    'UpdateViewerSinatraJob started for push event'
-  else
-    'No push event detected, doing nothing.'
-  end
-end
-
 post '/event_handler' do
   case request.env['HTTP_X_GITHUB_EVENT']
   when 'pull_request'
