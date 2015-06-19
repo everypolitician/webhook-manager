@@ -1,31 +1,48 @@
 require 'date'
 require 'github'
 
-# Update GitHub file and open pull request
+# Update GitHub file on a given branch
 class GithubFileUpdater
   attr_reader :github_repository
-  attr_reader :file_path
   attr_reader :github
-  attr_reader :branch_name
+  attr_accessor :path
+  attr_reader :branch
+  attr_reader :ref
 
-  def initialize(github_repository, file_path, github = Github.github)
+  def initialize(github_repository, github = Github.github)
     @github_repository = github_repository
-    @file_path = file_path
     @github = github
-    timestamp = DateTime.now.strftime('%Y%m%d%H%M%S')
-    @branch_name = "data-update-#{timestamp}"
   end
 
-  def update(contents, body = nil)
-    create_ref
-    update_contents(contents)
-    create_pull_request(body)
+  def update(contents)
+    options = { branch: branch }
+    options[:sha] = file[:sha] if file_exists?
+    github.create_contents(
+      github_repository,
+      path,
+      message,
+      contents,
+      options
+    ) if Base64.decode64(file.content) != contents
+  end
+
+  def branch=(branch)
+    @branch = branch
+    begin
+      @ref = github.ref(github_repository, "heads/#{branch}")
+    rescue Octokit::NotFound
+      @ref = github.create_ref(github_repository, "heads/#{branch}", master_sha)
+    end
+  end
+
+  def message
+    @message ||= "Update #{path}"
   end
 
   private
 
   def file
-    @file ||= github.contents(github_repository, path: file_path)
+    @file ||= github.contents(github_repository, path: path, ref: ref.ref)
   end
 
   def file_exists?
@@ -34,39 +51,9 @@ class GithubFileUpdater
     false
   end
 
-  def create_ref
-    github.create_ref(github_repository, "heads/#{branch_name}", master_sha)
-  end
-
-  def update_contents(contents)
-    options = { branch: branch_name }
-    options[:sha] = file[:sha] if file_exists?
-    github.create_contents(
-      github_repository,
-      file_path,
-      message,
-      contents,
-      options
-    )
-  end
-
-  def create_pull_request(body = nil)
-    github.create_pull_request(
-      github_repository,
-      'master',
-      branch_name,
-      message,
-      body
-    )
-  end
-
   def master_sha
     @master_sha ||= github.ref(
       github_repository, 'heads/master'
     )[:object][:sha]
-  end
-
-  def message
-    @message ||= "Update #{file_path}"
   end
 end
