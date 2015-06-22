@@ -85,7 +85,6 @@ post '/applications' do
   @applications = current_user.applications
   @application = Application.new(params[:application])
   @application.user_id = current_user.id
-  @application.secret = SecureRandom.hex(20)
   if @application.valid?
     @application.save
     redirect to('/')
