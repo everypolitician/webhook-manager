@@ -30,8 +30,14 @@ class AcceptSubmissionJob
   def accept_submission
     csv = csv_from_github
     csv << CSV::Row.new(*csv_data_for(submission.updates))
-    updater = GithubFileUpdater.new(github_repository, csv_path)
-    updater.update(csv.to_s)
+    update_csv(csv.to_s)
+  end
+
+  def update_csv(csv)
+    updater = GithubFileUpdater.new(github_repository)
+    updater.path = csv_path
+    updater.branch = "submission-#{Time.now.to_i}"
+    updater.update(csv)
   end
 
   def csv_from_github
