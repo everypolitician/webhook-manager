@@ -115,12 +115,6 @@ post '/applications/:application_id/submissions' do
   end
 end
 
-get '/applications/:application_id/submissions' do
-  content_type :json
-  @application = Application[params[:application_id]]
-  @application.submissions_dataset.to_json(include: :updates)
-end
-
 get '/applications/:application_id/submissions/:id' do
   @application = Application[params[:application_id]]
   @submission = @application.submissions_dataset[id: params[:id]]
@@ -128,12 +122,18 @@ get '/applications/:application_id/submissions/:id' do
 end
 
 # Mounted under /accept_submission so we can use basic auth
-class AcceptSubmission < Sinatra::Base
+class Submissions < Sinatra::Base
   use Rack::Auth::Basic do |application_id, secret|
     Application[application_id].secret == secret
   end
 
-  post '/:id' do
+  get '/' do
+    content_type :json
+    @application = Application[request.env['REMOTE_USER']]
+    @application.submissions_dataset.to_json(include: :updates)
+  end
+
+  post '/accept/:id' do
     application = Application[request.env['REMOTE_USER']]
     submission = application.submissions_dataset[id: params[:id]]
     AcceptSubmissionJob.perform_async(submission.id) if submission
