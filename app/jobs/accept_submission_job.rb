@@ -10,21 +10,23 @@ class AcceptSubmissionJob
   include Github
 
   attr_reader :submission
-  attr_reader :country
+  attr_reader :sources_directory
 
   def perform(submission_id)
     @submission = Submission[submission_id]
-    @country = get_country(submission.country)
+    legislature = get_legislature(submission.country, submission.legislature)
+    @sources_directory = legislature['sources_directory']
     accept_submission
   end
 
   private
 
-  def get_country(name)
+  def get_legislature(name, legislature)
     url = 'https://github.com/everypolitician/everypolitician-data/' \
       'raw/master/countries.json'
     countries = JSON.parse(open(url).read)
-    countries.find { |c| c['country'] == name }
+    country = countries.find { |c| c['country'] == name }
+    country['legislatures'].find { |l| l['name'] == legislature }
   end
 
   def accept_submission
@@ -58,7 +60,7 @@ class AcceptSubmissionJob
 
   def csv_path
     @csv_path ||= File.join(
-      country['sources_directory'],
+      sources_directory,
       submission.application.name,
       'updates.csv'
     )
