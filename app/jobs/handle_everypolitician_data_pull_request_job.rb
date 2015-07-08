@@ -40,8 +40,10 @@ class HandleEverypoliticianDataPullRequestJob
   end
 
   def trigger_webhook
-    # Find all applications with webhook urls
-    # Queue up a background job to fire a webhook to each backend
+    applications = Application.exclude(webhook_url: '')
+    applications.each do |application|
+      SendWebhookJob.perform_async(application.webhook_url)
+    end
   end
 
   def pull_request_updated_countries_json?
