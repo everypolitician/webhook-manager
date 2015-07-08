@@ -4,6 +4,11 @@ class Application < Sequel::Model
   one_to_many :submissions
   def validate
     super
-    validates_presence [:name, :secret]
+    validates_presence [:name]
+  end
+
+  def before_create
+    self.secret ||= SecureRandom.hex(20)
+    super
   end
 end

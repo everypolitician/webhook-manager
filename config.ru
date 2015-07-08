@@ -14,8 +14,8 @@ map '/sidekiq' do
   run Sidekiq::Web
 end
 
-map '/accept_submission' do
-  run AcceptSubmission
+map '/submissions' do
+  run Submissions
 end
 
 run Sinatra::Application

@@ -21,7 +21,7 @@ class DeployViewerSinatraPullRequestJob
     updater.branch = branch_name
     updater.update(countries_json_url)
     pull_request = create_pull_request(updater.message)
-    create_deployment_status(pull_request)
+    create_deployment_status(pull_request.html_url)
   end
 
   private
@@ -89,11 +89,11 @@ class DeployViewerSinatraPullRequestJob
     "everypolitician-data-pr-#{pull_request_number}"
   end
 
-  def create_deployment_status(pull_request)
+  def create_deployment_status(target_url)
     github.create_deployment_status(
       deployment['deployment']['url'],
       'success',
-      target_url: pull_request.html_url
+      target_url: target_url
     )
   end
 end
