@@ -35,7 +35,7 @@ namespace :webhooks do
     require 'open-uri'
     require 'json'
     require 'github'
-    urls = open('https://github-event-handler.herokuapp.com/urls.json').read
+    urls = open('https://app-manager.herokuapp.com/urls.json').read
     urls = JSON.parse(urls)
     event_handler_url = urls['webhook_event_handler_url']
     include Github

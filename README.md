@@ -1,6 +1,6 @@
 # GitHub Event Handler
 
-[![Build Status](https://travis-ci.org/everypolitician/github-event-handler.svg?branch=master)](https://travis-ci.org/everypolitician/github-event-handler)
+[![Build Status](https://travis-ci.org/everypolitician/app-manager.svg?branch=master)](https://travis-ci.org/everypolitician/app-manager)
 
 Listens for events from GitHub and 3rd party apps using [EveryPolitician](http://everypolitician.org) data. Allows apps that use EveryPolitician data to submit updates to the data.
 
@@ -8,8 +8,8 @@ Listens for events from GitHub and 3rd party apps using [EveryPolitician](http:/
 
 Get the code from GitHub
 
-    git clone https://github.com/everypolitician/github-event-handler
-    cd github-event-handler
+    git clone https://github.com/everypolitician/app-manager
+    cd app-manager
 
 Configure the environment by copying `.env.example` and following the instructions inside to configure the app.
 
