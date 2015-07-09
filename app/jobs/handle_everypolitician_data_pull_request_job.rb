@@ -11,12 +11,17 @@ class HandleEverypoliticianDataPullRequestJob
 
   def perform(pull_request)
     @pull_request = pull_request
-    create_deployment_event if valid? && pull_request_updated_countries_json?
+    return unless pull_request_updated_countries_json?
+    if opened_or_synchronized?
+      create_deployment_event
+    elsif merged?
+      trigger_webhook
+    end
   end
 
   private
 
-  def valid?
+  def opened_or_synchronized?
     %w(opened synchronize).include?(pull_request['action']) &&
       pull_request['repository']['full_name'] == everypolitician_data_repo
   end
@@ -28,6 +33,17 @@ class HandleEverypoliticianDataPullRequestJob
       environment: 'viewer-sinatra',
       payload: { pull_request_number: pull_request['number'] }
     )
+  end
+
+  def merged?
+    pull_request['action'] == 'closed' && pull_request['pull_request']['merged']
+  end
+
+  def trigger_webhook
+    applications = Application.exclude(webhook_url: '')
+    applications.each do |application|
+      SendWebhookJob.perform_async(application.webhook_url)
+    end
   end
 
   def pull_request_updated_countries_json?

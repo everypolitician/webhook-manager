@@ -103,6 +103,7 @@ PLATFORMS
 DEPENDENCIES
   database_cleaner
   dotenv
+  faraday
   minitest
   octokit
   omniauth-github
