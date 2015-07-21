@@ -1,4 +1,4 @@
-# GitHub Event Handler
+# EveryPolitician App Manager
 
 [![Build Status](https://travis-ci.org/everypolitician/app-manager.svg?branch=master)](https://travis-ci.org/everypolitician/app-manager)
 
