@@ -15,6 +15,7 @@ gem 'rack-flash3', require: 'rack/flash'
 gem 'sinatra-sequel'
 gem 'rubocop'
 gem 'faraday'
+gem 'pry'
 
 group :test do
   gem 'minitest'
