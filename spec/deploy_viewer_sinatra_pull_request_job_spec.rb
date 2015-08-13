@@ -8,7 +8,10 @@ describe DeployViewerSinatraPullRequestJob do
   let(:updater) { Minitest::Mock.new }
 
   it 'updates the DATASOURCE file in viewer-sinatra' do
-    pull = OpenStruct.new(head: OpenStruct.new(sha: 'abc123', ref: 'master'))
+    pull = OpenStruct.new(
+      head: OpenStruct.new(sha: 'abc123', ref: 'master'),
+      title: 'Updating Atlantis'
+    )
     pull_request = OpenStruct.new(html_url: 'https://example.org/pull_request/11')
     github.expect(:pull, pull, [ENV['EVERYPOLITICIAN_DATA_REPO'], 42])
     github_updater.expect(:new, updater, [ENV['VIEWER_SINATRA_REPO']])
@@ -26,7 +29,7 @@ describe DeployViewerSinatraPullRequestJob do
       ENV['VIEWER_SINATRA_REPO'],
       'master',
       'everypolitician-data-pr-42',
-      'Update DATASOURCE',
+      'Updating Atlantis',
       String
     ])
     github.expect(:create_deployment_status, true, [

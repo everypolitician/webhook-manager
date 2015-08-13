@@ -20,7 +20,7 @@ class DeployViewerSinatraPullRequestJob
     updater.path = 'DATASOURCE'
     updater.branch = branch_name
     updater.update(countries_json_url)
-    pull_request = create_pull_request(updater.message)
+    pull_request = create_pull_request(pull_request_title)
     create_deployment_status(pull_request.html_url)
   end
 
@@ -87,6 +87,10 @@ class DeployViewerSinatraPullRequestJob
 
   def branch_name
     "everypolitician-data-pr-#{pull_request_number}"
+  end
+
+  def pull_request_title
+    everypolitician_data_pull_request.title
   end
 
   def create_deployment_status(target_url)
