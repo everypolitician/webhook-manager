@@ -35,7 +35,7 @@ namespace :webhooks do
     require 'open-uri'
     require 'json'
     require 'github'
-    urls = open('https://app-manager.herokuapp.com/urls.json').read
+    urls = open('https://everypolitician-app-manager.herokuapp.com/urls.json').read
     urls = JSON.parse(urls)
     event_handler_url = urls['webhook_event_handler_url']
     include Github
@@ -47,17 +47,15 @@ namespace :webhooks do
         content_type: 'json',
         secret: ENV['GITHUB_WEBHOOK_SECRET']
       }
-      options = { events: [:push, :pull_request, :deployment], active: true }
-      repos = [ENV['EVERYPOLITICIAN_DATA_REPO'], ENV['VIEWER_SINATRA_REPO']]
-      repos.each do |repo|
-        github.create_hook(
-          repo,
-          'web',
-          config,
-          options
-        )
-      end
-      puts 'Webhook created'
+      options = { events: [:pull_request, :deployment], active: true }
+      repo = ENV['EVERYPOLITICIAN_DATA_REPO']
+      github.create_hook(
+        repo,
+        'web',
+        config,
+        options
+      )
+      puts "Webhook created for #{repo}"
     end
   end
 end
