@@ -5,6 +5,7 @@ Sequel.migration do
     end
     applications = from(:applications)
     applications.all do |application|
+      app_id = nil
       loop do
         app_id = SecureRandom.hex(10)
         break unless Application.where(app_id: app_id).any?
