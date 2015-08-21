@@ -11,7 +11,7 @@ class HandleEverypoliticianDataPullRequestJob
 
   def perform(pull_request)
     @pull_request = pull_request
-    return unless pull_request_updated_countries_json?
+    return unless valid?
     if opened_or_synchronized?
       create_deployment_event
     elsif merged?
@@ -21,9 +21,18 @@ class HandleEverypoliticianDataPullRequestJob
 
   private
 
+  def valid?
+    pull_request['repository']['full_name'] == everypolitician_data_repo &&
+      pull_request_updated_countries_json?
+  end
+
+  def pull_request_updated_countries_json?
+    files = github.pull_files(everypolitician_data_repo, pull_request['number'])
+    files.map { |f| f[:filename] }.flatten.uniq.include?('countries.json')
+  end
+
   def opened_or_synchronized?
-    %w(opened synchronize).include?(pull_request['action']) &&
-      pull_request['repository']['full_name'] == everypolitician_data_repo
+    %w(opened synchronize).include?(pull_request['action'])
   end
 
   def create_deployment_event
@@ -44,11 +53,6 @@ class HandleEverypoliticianDataPullRequestJob
     applications.each do |application|
       SendWebhookJob.perform_async(application.webhook_url)
     end
-  end
-
-  def pull_request_updated_countries_json?
-    files = github.pull_files(everypolitician_data_repo, pull_request['number'])
-    files.map { |f| f[:filename] }.flatten.uniq.include?('countries.json')
   end
 
   def everypolitician_data_repo
