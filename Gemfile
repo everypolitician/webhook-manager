@@ -16,6 +16,7 @@ gem 'sinatra-sequel'
 gem 'rubocop'
 gem 'faraday'
 gem 'pry'
+gem 'activesupport', require: 'active_support'
 
 group :test do
   gem 'minitest'

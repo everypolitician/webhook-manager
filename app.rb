@@ -4,12 +4,13 @@ Dotenv.load
 
 require 'json'
 require 'tilt/erb'
+require 'active_support/core_ext'
 
 $LOAD_PATH << File.expand_path('../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
 configure do
-  enable :sessions
+  set :sessions, expire_after: 5.years
   set :session_secret, ENV['SESSION_SECRET']
   set :database, lambda {
     ENV['DATABASE_URL'] ||
@@ -91,6 +92,12 @@ post '/applications' do
   else
     erb :index
   end
+end
+
+get '/applications/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  erb :application
 end
 
 post '/applications/:application_id/submissions' do

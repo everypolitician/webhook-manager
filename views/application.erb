@@ -1,0 +1,16 @@
+<a href="<%= url '/' %>">Back</a>
+<div class="page-header">
+  <h1><%= @application.name %></h1>
+</div>
+
+<dl class="keys">
+  <dt>Application ID</dt>
+  <dd><code><%= @application.app_id %></code></dd>
+  <dt>Application Secret</dt>
+  <dd><code><%= @application.secret %></code></dd>
+
+  <!--
+  <dt>Application Submission URL</dt>
+  <dd><code><%= application_url @application, url('/submissions') %></code></dd>
+  -->
+</dl>
