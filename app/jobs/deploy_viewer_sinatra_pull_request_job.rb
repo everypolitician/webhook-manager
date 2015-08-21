@@ -13,6 +13,20 @@ class DeployViewerSinatraPullRequestJob
 
   def perform(deployment)
     @deployment = deployment
+    return unless valid?
+    update_datasource
+    pull_request = create_pull_request(pull_request_title)
+    create_deployment_status(pull_request.html_url)
+  end
+
+  private
+
+  def valid?
+    deployment['repository']['full_name'] == everypolitician_data_repo &&
+      !pull_request_number.nil?
+  end
+
+  def update_datasource
     countries_json_url = 'https://raw.githubusercontent.com/' \
       'everypolitician/everypolitician-data/' \
       "#{everypolitician_data_pull_request.head.sha}/countries.json"
@@ -20,11 +34,7 @@ class DeployViewerSinatraPullRequestJob
     updater.path = 'DATASOURCE'
     updater.branch = branch_name
     updater.update(countries_json_url)
-    pull_request = create_pull_request(pull_request_title)
-    create_deployment_status(pull_request.html_url)
   end
-
-  private
 
   def existing_pull
     @existing_pull ||= github.pull_requests(viewer_sinatra_repo).find do |pull|
@@ -79,6 +89,10 @@ class DeployViewerSinatraPullRequestJob
 
   def viewer_sinatra_repo
     @viewer_sinatra_repo ||= ENV.fetch('VIEWER_SINATRA_REPO')
+  end
+
+  def everypolitician_data_repo
+    @everypolitician_data_repo ||= ENV.fetch('EVERYPOLITICIAN_DATA_REPO')
   end
 
   def pull_request_number
