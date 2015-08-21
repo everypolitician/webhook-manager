@@ -94,6 +94,12 @@ post '/applications' do
   end
 end
 
+get '/applications/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  erb :application
+end
+
 post '/applications/:application_id/submissions' do
   application = Application[params[:application_id]]
   submission_data = params[:submission]

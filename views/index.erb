@@ -3,7 +3,7 @@
   <h1>Applications</h1>
   <ul>
     <% @applications.each do |application| %>
-      <li><%= application.name %></li>
+      <li><a href="<%= url "/applications/#{application.id}" %>"><%= application.name %></a></li>
     <% end %>
   </ul>
 
