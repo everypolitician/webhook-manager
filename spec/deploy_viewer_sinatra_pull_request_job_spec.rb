@@ -42,6 +42,7 @@ describe DeployViewerSinatraPullRequestJob do
         'full_name' => ENV['EVERYPOLITICIAN_DATA_REPO']
       },
       'deployment' => {
+        'sha' => 'abc123',
         'payload' => {
           'pull_request_number' => 42
         },

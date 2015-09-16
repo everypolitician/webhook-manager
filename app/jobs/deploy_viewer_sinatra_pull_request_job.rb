@@ -29,7 +29,7 @@ class DeployViewerSinatraPullRequestJob
   def update_datasource
     countries_json_url = 'https://raw.githubusercontent.com/' \
       'everypolitician/everypolitician-data/' \
-      "#{everypolitician_data_pull_request.head.sha}/countries.json"
+      "#{deployment['deployment']['sha']}/countries.json"
     updater = github_updater.new(viewer_sinatra_repo)
     updater.path = 'DATASOURCE'
     updater.branch = branch_name
