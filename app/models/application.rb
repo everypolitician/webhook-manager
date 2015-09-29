@@ -23,4 +23,19 @@ class Application < Sequel::Model
   def generate_app_secret
     self.secret = SecureRandom.hex(20)
   end
+
+  def submission_from_payload(submission_data)
+    updates = submission_data.delete(:updates)
+    submission = nil
+    db.transaction do
+      submission = add_submission(submission_data)
+      updates.each do |field, value|
+        submission.add_update(
+          field: field,
+          value: value
+        )
+      end
+    end
+    submission
+  end
 end
