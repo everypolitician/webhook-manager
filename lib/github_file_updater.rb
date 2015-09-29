@@ -17,13 +17,15 @@ class GithubFileUpdater
   def update(contents)
     options = { branch: branch }
     options[:sha] = file[:sha] if file_exists?
-    github.create_contents(
-      github_repository,
-      path,
-      message,
-      contents,
-      options
-    ) if Base64.decode64(file.content) != contents
+    if !file_exists? || Base64.decode64(file.content) != contents
+      github.create_contents(
+        github_repository,
+        path,
+        message,
+        contents,
+        options
+      )
+    end
   end
 
   def branch=(branch)
