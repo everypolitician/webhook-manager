@@ -131,18 +131,18 @@ end
 # Mounted under /submissions so we can use basic auth
 class Submissions < Sinatra::Base
   use Rack::Auth::Basic do |application_id, secret|
-    application = Application[application_id]
+    application = Application.first(app_id: application_id)
     application && application.secret == secret
   end
 
   get '/' do
     content_type :json
-    @application = Application[request.env['REMOTE_USER']]
+    @application = Application.first(app_id: request.env['REMOTE_USER'])
     @application.submissions_dataset.to_json(include: :updates)
   end
 
   post '/' do
-    application = Application[request.env['REMOTE_USER']]
+    application = Application.first(app_id: request.env['REMOTE_USER'])
     request.body.rewind
     payload_body = request.body.read
     payload = JSON.parse(payload_body, symbolize_names: true)
@@ -152,7 +152,7 @@ class Submissions < Sinatra::Base
   end
 
   post '/accept/:id' do
-    application = Application[request.env['REMOTE_USER']]
+    application = Application.first(app_id: request.env['REMOTE_USER'])
     submission = application.submissions_dataset[id: params[:id]]
     AcceptSubmissionJob.perform_async(submission.id) if submission
     'OK'
