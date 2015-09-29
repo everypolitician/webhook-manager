@@ -22,7 +22,7 @@ describe 'Submissions' do
     end
 
     it 'is successful' do
-      basic_authorize @application.id, @application.secret
+      basic_authorize @application.app_id, @application.secret
       get '/'
       assert last_response.ok?
     end
