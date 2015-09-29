@@ -25,8 +25,8 @@ class AcceptSubmissionJob
     url = 'https://github.com/everypolitician/everypolitician-data/' \
       'raw/master/countries.json'
     countries = JSON.parse(open(url).read)
-    country = countries.find { |c| c['country'] == name }
-    country['legislatures'].find { |l| l['name'] == legislature }
+    country = countries.find { |c| c['slug'] == name }
+    country['legislatures'].find { |l| l['slug'] == legislature }
   end
 
   def accept_submission
