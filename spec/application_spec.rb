@@ -19,11 +19,11 @@ describe Application do
   describe '#submission_from_payload' do
     it 'creates a submission and associated updates' do
       submission = subject.submission_from_payload(
-        country: 'Foo',
-        legislature: 'Bar',
-        person_id: '123',
-        updates: {
-          twitter: 'foobarbaz'
+        'country' => 'Foo',
+        'legislature' => 'Bar',
+        'person_id' => '123',
+        'updates' => {
+          'twitter' => 'foobarbaz'
         }
       )
       assert_equal 'Foo', submission.country

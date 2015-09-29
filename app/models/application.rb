@@ -25,7 +25,7 @@ class Application < Sequel::Model
   end
 
   def submission_from_payload(submission_data)
-    updates = submission_data.delete(:updates)
+    updates = submission_data.delete('updates')
     submission = nil
     db.transaction do
       submission = add_submission(submission_data)
