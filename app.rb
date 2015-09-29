@@ -143,10 +143,7 @@ class Submissions < Sinatra::Base
 
   post '/' do
     application = Application.first(app_id: request.env['REMOTE_USER'])
-    request.body.rewind
-    payload_body = request.body.read
-    payload = JSON.parse(payload_body, symbolize_names: true)
-    submission = application.submission_from_payload(payload)
+    submission = application.submission_from_payload(params[:submission])
     AcceptSubmissionJob.perform_async(submission.id)
     'ok'
   end
