@@ -1,6 +1,7 @@
 # Checks for everypolitician-data pull requests and creates deployment events
 class HandleEverypoliticianDataPullRequestJob
   include Sidekiq::Worker
+  include Github
 
   attr_accessor :pull_request
   attr_reader :github
@@ -13,7 +14,11 @@ class HandleEverypoliticianDataPullRequestJob
     @pull_request = pull_request
     return unless valid?
     if opened_or_synchronized?
-      create_deployment_event
+      if pull_request_updated_countries_json?
+        create_deployment_event
+      else
+        update_countries_json
+      end
     elsif merged?
       trigger_webhook
     end
@@ -22,8 +27,7 @@ class HandleEverypoliticianDataPullRequestJob
   private
 
   def valid?
-    pull_request['repository']['full_name'] == everypolitician_data_repo &&
-      pull_request_updated_countries_json?
+    pull_request['repository']['full_name'] == everypolitician_data_repo
   end
 
   def pull_request_updated_countries_json?
@@ -43,6 +47,15 @@ class HandleEverypoliticianDataPullRequestJob
       environment: 'viewer-sinatra',
       payload: { pull_request_number: pull_request['number'] }
     )
+  end
+
+  def update_countries_json
+    branch = pull_request['pull_request']['head']['ref']
+    message = 'Refresh countries.json'
+    with_git_repo(everypolitician_data_repo, branch: branch, message: message) do
+      system('bundle install')
+      system('bundle exec rake countries.json')
+    end
   end
 
   def merged?
