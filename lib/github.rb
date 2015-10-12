@@ -40,6 +40,6 @@ module Github
     message = options.fetch(:message)
     system('git add .')
     system(%Q{git #{git_config} commit --quiet --message="#{message}"})
-    system("git push origin #{branch_name}")
+    system("git push --quiet origin #{branch_name}")
   end
 end
