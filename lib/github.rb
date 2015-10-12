@@ -43,7 +43,7 @@ module Github
     branch_name = options.fetch(:branch)
     message = options.fetch(:message)
     system('git add .')
-    system(%(git #{git_config} commit --quiet --message="#{message}"))
+    system(%(git #{git_config} commit --quiet --message="#{message}" || true))
     system("git push --quiet origin #{branch_name}")
   end
 
