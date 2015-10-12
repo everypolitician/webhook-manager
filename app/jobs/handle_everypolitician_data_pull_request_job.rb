@@ -54,8 +54,9 @@ class HandleEverypoliticianDataPullRequestJob
     message = 'Refresh countries.json'
     with_git_repo(everypolitician_data_repo, branch: branch, message: message) do
       # Unset bundler environment variables so it uses the correct Gemfile etc.
-      system({'BUNDLE_GEMFILE' => nil, 'BUNDLE_BIN_PATH' => nil}, 'bundle install')
-      system('bundle exec rake countries.json')
+      env = {'BUNDLE_GEMFILE' => nil, 'BUNDLE_BIN_PATH' => nil, 'RUBYOPT' => nil, 'RUBYLIB' => nil}
+      system(env, 'bundle install')
+      system(env, 'bundle exec rake countries.json')
     end
   end
 
