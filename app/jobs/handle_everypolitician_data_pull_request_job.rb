@@ -73,4 +73,12 @@ class HandleEverypoliticianDataPullRequestJob
   def everypolitician_data_repo
     ENV['EVERYPOLITICIAN_DATA_REPO']
   end
+
+  class FailedSystemCall < StandardError; end
+
+  def system(*args)
+    if !Kernel.system(*args)
+      raise FailedSystemCall, "#{args} exited with #$?"
+    end
+  end
 end
