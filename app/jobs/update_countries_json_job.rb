@@ -1,14 +1,23 @@
+require 'English'
+
+# Updates the countries.json file for a given everypolitician-data branch
 class UpdateCountriesJsonJob
   include Sidekiq::Worker
   include Github
 
-  class FailedSystemCall < StandardError; end
+  class SystemCallFail < StandardError; end
 
   def perform(branch)
     message = 'Refresh countries.json'
-    with_git_repo(everypolitician_data_repo, branch: branch, message: message) do
+    options = { branch: branch, message: message }
+    with_git_repo(everypolitician_data_repo, options) do
       # Unset bundler environment variables so it uses the correct Gemfile etc.
-      env = {'BUNDLE_GEMFILE' => nil, 'BUNDLE_BIN_PATH' => nil, 'RUBYOPT' => nil, 'RUBYLIB' => nil}
+      env = {
+        'BUNDLE_GEMFILE' => nil,
+        'BUNDLE_BIN_PATH' => nil,
+        'RUBYOPT' => nil,
+        'RUBYLIB' => nil
+      }
       system(env, 'bundle install')
       system(env, 'bundle exec rake countries.json')
     end
@@ -21,8 +30,6 @@ class UpdateCountriesJsonJob
   end
 
   def system(*args)
-    if !Kernel.system(*args)
-      raise FailedSystemCall, "#{args} exited with #$?"
-    end
+    fail SystemCallFail, "#{args} #{$CHILD_STATUS}" unless Kernel.system(*args)
   end
 end

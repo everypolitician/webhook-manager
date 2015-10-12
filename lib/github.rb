@@ -6,7 +6,7 @@ module Github
   module_function :github
   public :github
 
-  def with_git_repo(repo_name, options, &block)
+  def with_git_repo(repo_name, options)
     repo = github.repository(repo_name)
     with_tmp_dir do |dir|
       args = ['--quiet']
@@ -39,7 +39,7 @@ module Github
     branch_name = options.fetch(:branch)
     message = options.fetch(:message)
     system('git add .')
-    system(%Q{git #{git_config} commit --quiet --message="#{message}"})
+    system(%(git #{git_config} commit --quiet --message="#{message}"))
     system("git push --quiet origin #{branch_name}")
   end
 end

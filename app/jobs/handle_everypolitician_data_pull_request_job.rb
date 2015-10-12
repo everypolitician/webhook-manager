@@ -13,9 +13,7 @@ class HandleEverypoliticianDataPullRequestJob
     @pull_request = pull_request
     return unless valid?
     if opened_or_synchronized?
-      if pull_request_updated_countries_json?
-        create_deployment_event
-      end
+      create_deployment_event if pull_request_updated_countries_json?
       update_countries_json
     elsif merged?
       trigger_webhook
