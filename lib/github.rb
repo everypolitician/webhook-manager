@@ -1,5 +1,9 @@
+require 'English'
+
 # Mixin to provide a GitHub client and helpers.
 module Github
+  class SystemCallFail < StandardError; end
+
   def github
     @github ||= Octokit::Client.new(access_token: ENV['GITHUB_ACCESS_TOKEN'])
   end
@@ -41,5 +45,9 @@ module Github
     system('git add .')
     system(%(git #{git_config} commit --quiet --message="#{message}"))
     system("git push --quiet origin #{branch_name}")
+  end
+
+  def system(*args)
+    fail SystemCallFail, "#{args} #{$CHILD_STATUS}" unless Kernel.system(*args)
   end
 end

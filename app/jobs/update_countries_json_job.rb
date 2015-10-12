@@ -1,11 +1,7 @@
-require 'English'
-
 # Updates the countries.json file for a given everypolitician-data branch
 class UpdateCountriesJsonJob
   include Sidekiq::Worker
   include Github
-
-  class SystemCallFail < StandardError; end
 
   def perform(branch)
     message = 'Refresh countries.json'
@@ -27,9 +23,5 @@ class UpdateCountriesJsonJob
 
   def everypolitician_data_repo
     ENV['EVERYPOLITICIAN_DATA_REPO']
-  end
-
-  def system(*args)
-    fail SystemCallFail, "#{args} #{$CHILD_STATUS}" unless Kernel.system(*args)
   end
 end
