@@ -15,9 +15,8 @@ class HandleEverypoliticianDataPullRequestJob
     if opened_or_synchronized?
       if pull_request_updated_countries_json?
         create_deployment_event
-      else
-        update_countries_json
       end
+      update_countries_json
     elsif merged?
       trigger_webhook
     end
