@@ -13,7 +13,8 @@ class HandleEverypoliticianDataPullRequestJob
     @pull_request = pull_request
     return unless valid?
     if opened_or_synchronized?
-      create_deployment_event
+      create_deployment_event if pull_request_updated_countries_json?
+      update_countries_json
     elsif merged?
       trigger_webhook
     end
@@ -22,8 +23,7 @@ class HandleEverypoliticianDataPullRequestJob
   private
 
   def valid?
-    pull_request['repository']['full_name'] == everypolitician_data_repo &&
-      pull_request_updated_countries_json?
+    pull_request['repository']['full_name'] == everypolitician_data_repo
   end
 
   def pull_request_updated_countries_json?
@@ -43,6 +43,11 @@ class HandleEverypoliticianDataPullRequestJob
       environment: 'viewer-sinatra',
       payload: { pull_request_number: pull_request['number'] }
     )
+  end
+
+  def update_countries_json
+    branch = pull_request['pull_request']['head']['ref']
+    UpdateCountriesJsonJob.perform_async(branch)
   end
 
   def merged?
