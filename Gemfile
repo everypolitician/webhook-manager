@@ -17,6 +17,7 @@ gem 'rubocop'
 gem 'faraday'
 gem 'pry'
 gem 'activesupport', require: 'active_support'
+gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
 
 group :test do
   gem 'minitest'
