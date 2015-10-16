@@ -1,4 +1,3 @@
-require 'github'
 require 'open-uri'
 require 'github_file_updater'
 require 'csv'
@@ -7,7 +6,6 @@ require 'date'
 # Takes an approved 3rd party submission and adds it to everypolitician-data
 class AcceptSubmissionJob
   include Sidekiq::Worker
-  include Github
 
   attr_reader :submission
   attr_reader :sources_directory
@@ -43,7 +41,7 @@ class AcceptSubmissionJob
   end
 
   def csv_from_github
-    csv_text = github.contents(
+    csv_text = Everypoliticianbot.github.contents(
       github_repository,
       path: csv_path,
       accept: 'application/vnd.github.v3.raw'

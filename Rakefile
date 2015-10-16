@@ -34,11 +34,10 @@ namespace :webhooks do
   task configure: :app do
     require 'open-uri'
     require 'json'
-    require 'github'
     urls = open('https://everypolitician-app-manager.herokuapp.com/urls.json').read
     urls = JSON.parse(urls)
     event_handler_url = urls['webhook_event_handler_url']
-    include Github
+    github = Everypoliticianbot.github
     webhooks = github.hooks(ENV['EVERYPOLITICIAN_DATA_REPO'])
     webhook = webhooks.find { |h| h[:config][:url] == event_handler_url }
     if webhook.nil?

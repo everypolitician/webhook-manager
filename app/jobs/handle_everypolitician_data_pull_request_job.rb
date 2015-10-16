@@ -5,7 +5,7 @@ class HandleEverypoliticianDataPullRequestJob
   attr_accessor :pull_request
   attr_reader :github
 
-  def initialize(github = Github.github)
+  def initialize(github = Everypoliticianbot.github)
     @github = github
   end
 
