@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/everypolitician/everypoliticianbot.git
-  revision: 8d89d09f0f7fde136e31f7ef61f163b43db716f0
+  revision: dbf23a5a419ce9e58de678c020c1ae9ec1fd3796
   specs:
     everypoliticianbot (0.1.0)
       git (~> 1.2)
