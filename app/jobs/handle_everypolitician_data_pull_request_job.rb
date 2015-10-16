@@ -13,10 +13,13 @@ class HandleEverypoliticianDataPullRequestJob
     @pull_request = pull_request
     return unless valid?
     if opened_or_synchronized?
-      create_deployment_event if pull_request_updated_countries_json?
+      pull_request_updated_countries_json? &&
+        create_deployment_event(pull_request['pull_request']['head']['sha'])
       update_countries_json
     elsif merged?
       trigger_webhook
+      master = github.branch(everypolitician_data_repo, 'master')
+      create_deployment_event(master[:commit][:sha], merge: true)
     end
   end
 
@@ -35,13 +38,13 @@ class HandleEverypoliticianDataPullRequestJob
     %w(opened synchronize).include?(pull_request['action'])
   end
 
-  def create_deployment_event
+  def create_deployment_event(sha, payload = {})
     github.create_deployment(
       everypolitician_data_repo,
-      pull_request['pull_request']['head']['sha'],
+      sha,
       auto_merge: false,
       environment: 'viewer-sinatra',
-      payload: { pull_request_number: pull_request['number'] }
+      payload: payload.merge(pull_request_number: pull_request['number'])
     )
   end
 

@@ -18,6 +18,8 @@ class DeployViewerSinatraPullRequestJob
     update_datasource
     pull_request = create_pull_request(pull_request_title)
     create_deployment_status(pull_request.html_url)
+    return unless deployment['deployment']['payload']['merge']
+    github.merge_pull_request(viewer_sinatra_repo, pull_request[:number])
   end
 
   private
