@@ -1,5 +1,4 @@
 require 'date'
-require 'github'
 
 # Update GitHub file on a given branch
 class GithubFileUpdater
@@ -9,7 +8,7 @@ class GithubFileUpdater
   attr_reader :branch
   attr_reader :ref
 
-  def initialize(github_repository, github = Github.github)
+  def initialize(github_repository, github = Everypoliticianbot.github)
     @github_repository = github_repository
     @github = github
   end

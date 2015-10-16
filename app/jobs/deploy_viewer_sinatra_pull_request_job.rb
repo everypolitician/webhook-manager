@@ -6,7 +6,7 @@ class DeployViewerSinatraPullRequestJob
   attr_reader :github
   attr_reader :github_updater
 
-  def initialize(github = Github.github, github_updater = GithubFileUpdater)
+  def initialize(github = Everypoliticianbot.github, github_updater = GithubFileUpdater)
     @github = github
     @github_updater = github_updater
   end

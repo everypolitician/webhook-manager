@@ -1,7 +1,7 @@
 # Updates the countries.json file for a given everypolitician-data branch
 class UpdateCountriesJsonJob
   include Sidekiq::Worker
-  include Github
+  include Everypoliticianbot::Github
 
   def perform(branch)
     message = 'Refresh countries.json'
