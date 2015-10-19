@@ -2,6 +2,8 @@
 class DeployViewerSinatraPullRequestJob
   include Sidekiq::Worker
 
+  EventHandler.register_handler :deployment, self
+
   attr_reader :deployment
   attr_reader :github
   attr_reader :github_updater

@@ -39,4 +39,8 @@ module Helpers
     uri.password = application.secret
     uri
   end
+
+  def github_event
+    request.env['HTTP_X_GITHUB_EVENT']
+  end
 end

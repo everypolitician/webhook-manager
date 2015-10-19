@@ -2,6 +2,8 @@
 class HandleEverypoliticianDataPullRequestJob
   include Sidekiq::Worker
 
+  EventHandler.register_handler :pull_request, self
+
   attr_accessor :pull_request
   attr_reader :github
 
