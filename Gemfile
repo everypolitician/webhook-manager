@@ -13,9 +13,9 @@ gem 'pg'
 gem 'omniauth-github'
 gem 'rack-flash3', require: 'rack/flash'
 gem 'sinatra-sequel'
-gem 'rubocop'
+gem 'rubocop', require: false
 gem 'faraday'
-gem 'pry'
+gem 'pry', require: false
 gem 'activesupport', require: 'active_support'
 gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
 
