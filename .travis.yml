@@ -2,7 +2,7 @@
 language: ruby
 cache: bundler
 rvm:
-  - 2.2.2
+  - 2.2.3
 
 before_script:
   - psql -c 'create database everypolitician_test;' -U postgres
