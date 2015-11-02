@@ -18,8 +18,10 @@ class HandleEverypoliticianDataPullRequestJob
       update_countries_json
     elsif merged?
       trigger_webhook
-      master = github.branch(everypolitician_data_repo, 'master')
-      create_deployment_event(master[:commit][:sha], merge: true)
+      if pull_request_updated_countries_json?
+        master = github.branch(everypolitician_data_repo, 'master')
+        create_deployment_event(master[:commit][:sha], merge: true)
+      end
     end
   end
 
