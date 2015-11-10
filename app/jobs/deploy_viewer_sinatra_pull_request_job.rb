@@ -16,7 +16,9 @@ class DeployViewerSinatraPullRequestJob
     @deployment = deployment
     return unless valid?
     if everypolitician_data_pr_was_merged?
-      update_datasource('master')
+      contents = update_datasource('master')
+      message = "I've updated DATASOURCE in #{contents[:commit][:sha]}"
+      github.add_comment(viewer_sinatra_repo, pull_request[:number], message)
       github.close_pull_request(viewer_sinatra_repo, pull_request[:number])
     else
       update_datasource(branch_name)
