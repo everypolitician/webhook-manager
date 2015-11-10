@@ -15,13 +15,14 @@ class DeployViewerSinatraPullRequestJob
   def perform(deployment)
     @deployment = deployment
     return unless valid?
-    update_datasource
-    pull_request = create_pull_request(pull_request_title)
-    create_deployment_status(pull_request.html_url)
-    # TODO: Re-enable this once it handles waiting for the travis build to pass
-    # before merging.
-    # return unless deployment['deployment']['payload']['merge']
-    # github.merge_pull_request(viewer_sinatra_repo, pull_request[:number])
+    if everypolitician_data_pr_was_merged?
+      update_datasource('master')
+      github.close_pull_request(viewer_sinatra_repo, pull_request[:number])
+    else
+      update_datasource(branch_name)
+      pull_request = create_pull_request(pull_request_title)
+      create_deployment_status(pull_request.html_url)
+    end
   end
 
   private
@@ -31,13 +32,17 @@ class DeployViewerSinatraPullRequestJob
       !pull_request_number.nil?
   end
 
-  def update_datasource
+  def everypolitician_data_pr_was_merged?
+    deployment['deployment']['payload']['merge']
+  end
+
+  def update_datasource(branch)
     countries_json_url = 'https://raw.githubusercontent.com/' \
       'everypolitician/everypolitician-data/' \
       "#{deployment['deployment']['sha']}/countries.json"
     updater = github_updater.new(viewer_sinatra_repo)
     updater.path = 'DATASOURCE'
-    updater.branch = branch_name
+    updater.branch = branch
     updater.update(countries_json_url)
   end
 
