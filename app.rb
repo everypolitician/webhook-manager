@@ -17,18 +17,18 @@ configure do
       "postgres:///everypolitician_#{environment}"
   }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
+end
 
-  if production?
-    require 'rollbar/middleware/sinatra'
-    require 'rollbar/sidekiq'
+configure :production do
+  require 'rollbar/middleware/sinatra'
+  require 'rollbar/sidekiq'
 
-    use Rollbar::Middleware::Sinatra
+  use Rollbar::Middleware::Sinatra
 
-    Rollbar.configure do |config|
-      config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
-      config.disable_monkey_patch = true
-      config.environment = :production
-    end
+  Rollbar.configure do |config|
+    config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
+    config.disable_monkey_patch = true
+    config.environment = settings.environment
   end
 end
 
