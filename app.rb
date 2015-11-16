@@ -17,6 +17,12 @@ configure do
       "postgres:///everypolitician_#{environment}"
   }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
+
+  if production?
+    Rollbar.configure do |config|
+      config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
+    end
+  end
 end
 
 require 'helpers'
@@ -126,6 +132,12 @@ get '/applications/:application_id/submissions/:id' do
   @application = Application[params[:application_id]]
   @submission = @application.submissions_dataset[id: params[:id]]
   erb :new_submission
+end
+
+get '/rollbar_test' do
+  class RollbarTestingException < RuntimeError; end
+  Rollbar.error('Test error from rollbar_test')
+  raise RollbarTestingException.new, 'Testing rollbar. If you can see this, it works.'
 end
 
 # Mounted under /submissions so we can use basic auth

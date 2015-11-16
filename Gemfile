@@ -19,6 +19,10 @@ gem 'pry', require: false
 gem 'activesupport', require: 'active_support'
 gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
 
+# Rollbar integration (oj is recommended)
+gem 'rollbar', '~> 2.4.0'
+gem 'oj', '~> 2.12.14'
+
 group :test do
   gem 'minitest'
   gem 'rack-test'
