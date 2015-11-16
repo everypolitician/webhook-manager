@@ -27,6 +27,7 @@ configure do
     Rollbar.configure do |config|
       config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
       config.disable_monkey_patch = true
+      config.environment = :production
     end
   end
 end
