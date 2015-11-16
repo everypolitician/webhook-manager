@@ -17,6 +17,12 @@ configure do
       "postgres:///everypolitician_#{environment}"
   }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
+
+  if production?
+    Rollbar.configure do |config|
+      config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
+    end
+  end
 end
 
 require 'helpers'
