@@ -141,12 +141,6 @@ get '/applications/:application_id/submissions/:id' do
   erb :new_submission
 end
 
-get '/rollbar_test' do
-  class RollbarTestingException < RuntimeError; end
-  Rollbar.error('Test error from rollbar_test')
-  raise RollbarTestingException.new, 'Testing rollbar. If you can see this, it works.'
-end
-
 # Mounted under /submissions so we can use basic auth
 class Submissions < Sinatra::Base
   use Rack::Auth::Basic do |application_id, secret|
