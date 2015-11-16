@@ -14,6 +14,8 @@ class SendWebhookJob
     Faraday.post(webhook_url) do |req|
       req.body = countries_json
       req.headers['Content-Type'] = 'application/json'
+      req.options.timeout = 10
+      req.options.open_timeout = 5
     end
   end
 
