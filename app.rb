@@ -19,8 +19,14 @@ configure do
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
 
   if production?
+    require 'rollbar/middleware/sinatra'
+    require 'rollbar/sidekiq'
+
+    use Rollbar::Middleware::Sinatra
+
     Rollbar.configure do |config|
       config.access_token = ENV['ROLLBAR_ACCESS_TOKEN']
+      config.disable_monkey_patch = true
     end
   end
 end
