@@ -18,6 +18,7 @@ gem 'faraday'
 gem 'pry', require: false
 gem 'activesupport', require: 'active_support'
 gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
+gem 'sinatra-github_webhooks'
 
 # Rollbar integration (oj is recommended)
 gem 'rollbar', '~> 2.4.0'

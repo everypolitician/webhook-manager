@@ -32,11 +32,21 @@ configure :production do
   end
 end
 
-require 'helpers'
 require 'app/models'
 require 'app/jobs'
 
-helpers Helpers
+helpers do
+  def current_user
+    @current_user ||= User[session[:user_id]]
+  end
+
+  def application_url(application, url)
+    uri = URI.parse(url)
+    uri.user = application.app_id
+    uri.password = application.secret
+    uri
+  end
+end
 
 use OmniAuth::Builder do
   provider :github, ENV['GITHUB_KEY'], ENV['GITHUB_SECRET'], scope: 'user:email'
@@ -82,7 +92,7 @@ get '/urls.json' do
 end
 
 post '/event_handler' do
-  case request.env['HTTP_X_GITHUB_EVENT']
+  case github_event
   when 'pull_request'
     HandleEverypoliticianDataPullRequestJob.perform_async(payload)
     'HandleEverypoliticianDataPullRequestJob queued'
@@ -90,7 +100,7 @@ post '/event_handler' do
     DeployViewerSinatraPullRequestJob.perform_async(payload)
     'DeployViewerSinatraPullRequestJob queued'
   else
-    "Unknown event type: #{request.env['HTTP_X_GITHUB_EVENT']}"
+    "Unknown event type: #{github_event}"
   end
 end
 
