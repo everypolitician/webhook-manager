@@ -32,11 +32,21 @@ configure :production do
   end
 end
 
-require 'helpers'
 require 'app/models'
 require 'app/jobs'
 
-helpers Helpers
+helpers do
+  def current_user
+    @current_user ||= User[session[:user_id]]
+  end
+
+  def application_url(application, url)
+    uri = URI.parse(url)
+    uri.user = application.app_id
+    uri.password = application.secret
+    uri
+  end
+end
 
 use OmniAuth::Builder do
   provider :github, ENV['GITHUB_KEY'], ENV['GITHUB_SECRET'], scope: 'user:email'
