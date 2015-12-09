@@ -82,7 +82,7 @@ get '/urls.json' do
 end
 
 post '/event_handler' do
-  case request.env['HTTP_X_GITHUB_EVENT']
+  case github_event
   when 'pull_request'
     HandleEverypoliticianDataPullRequestJob.perform_async(payload)
     'HandleEverypoliticianDataPullRequestJob queued'
@@ -90,7 +90,7 @@ post '/event_handler' do
     DeployViewerSinatraPullRequestJob.perform_async(payload)
     'DeployViewerSinatraPullRequestJob queued'
   else
-    "Unknown event type: #{request.env['HTTP_X_GITHUB_EVENT']}"
+    "Unknown event type: #{github_event}"
   end
 end
 
