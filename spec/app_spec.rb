@@ -54,7 +54,7 @@ describe 'App' do
 
   describe 'GitHub webhooks' do
     it 'rejects invalid signatures' do
-      assert_difference 'MergeJob.jobs.size', 0 do
+      assert_difference 'HandleEverypoliticianDataPullRequestJob.jobs.size', 0 do
         post '/event_handler',
              {},
              'HTTP_X_HUB_SIGNATURE' => 'sha1=invalid',
