@@ -2,6 +2,7 @@ require 'bundler'
 Bundler.require
 Dotenv.load
 
+require 'open-uri'
 require 'json'
 require 'tilt/erb'
 require 'active_support/core_ext'
