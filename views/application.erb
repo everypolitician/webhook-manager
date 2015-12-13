@@ -4,15 +4,6 @@
 </div>
 
 <dl class="keys">
-  <dt>Application ID</dt>
-  <dd><code><%= @application.app_id %></code></dd>
-  <dt>Application Secret</dt>
-  <dd><code><%= @application.secret %></code></dd>
   <dt>Webhook url</dt>
   <dd><a href="<%= @application.webhook_url %>"><%= @application.webhook_url %></a></dd>
-
-  <!--
-  <dt>Application Submission URL</dt>
-  <dd><code><%= application_url @application, url('/submissions') %></code></dd>
-  -->
 </dl>

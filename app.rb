@@ -39,13 +39,6 @@ helpers do
   def current_user
     @current_user ||= User[session[:user_id]]
   end
-
-  def application_url(application, url)
-    uri = URI.parse(url)
-    uri.user = application.app_id
-    uri.password = application.secret
-    uri
-  end
 end
 
 use OmniAuth::Builder do
@@ -121,60 +114,4 @@ get '/applications/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
   erb :application
-end
-
-post '/applications/:application_id/submissions' do
-  application = Application[params[:application_id]]
-  submission_data = params[:submission]
-  updates = submission_data.delete('data')
-  begin
-    submission = nil
-    Submission.db.transaction do
-      submission = application.add_submission(submission_data)
-      updates.each do |field, value|
-        submission.add_update(
-          field: field,
-          value: value
-        )
-      end
-    end
-    flash[:notice] = 'Your update has been submitted for approval'
-    redirect to("/applications/#{application.id}/submissions/#{submission.id}")
-  rescue Sequel::ValidationFailed => e
-    "Invalid submission: #{e.message}"
-  end
-end
-
-get '/applications/:application_id/submissions/:id' do
-  @application = Application[params[:application_id]]
-  @submission = @application.submissions_dataset[id: params[:id]]
-  erb :new_submission
-end
-
-# Mounted under /submissions so we can use basic auth
-class Submissions < Sinatra::Base
-  use Rack::Auth::Basic do |application_id, secret|
-    application = Application.first(app_id: application_id)
-    application && application.secret == secret
-  end
-
-  get '/' do
-    content_type :json
-    @application = Application.first(app_id: request.env['REMOTE_USER'])
-    @application.submissions_dataset.to_json(include: :updates)
-  end
-
-  post '/' do
-    application = Application.first(app_id: request.env['REMOTE_USER'])
-    submission = application.submission_from_payload(params[:submission])
-    AcceptSubmissionJob.perform_async(submission.id)
-    'ok'
-  end
-
-  post '/accept/:id' do
-    application = Application.first(app_id: request.env['REMOTE_USER'])
-    submission = application.submissions_dataset[id: params[:id]]
-    AcceptSubmissionJob.perform_async(submission.id) if submission
-    'OK'
-  end
 end

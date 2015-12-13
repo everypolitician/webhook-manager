@@ -1,3 +1,5 @@
+require 'github_file_updater'
+
 # Creates or updates viewer-sinatra pull requests
 class DeployViewerSinatraPullRequestJob
   include Sidekiq::Worker
