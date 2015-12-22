@@ -10,16 +10,20 @@ class SendWebhookJob
   # these won't be delivered as frequently.
   sidekiq_options retry: false
 
-  def perform(webhook_url)
+  def perform(webhook_url, action, pull_request_number, pull_request_head)
     Faraday.post(webhook_url) do |req|
-      req.body = countries_json
+      req.body = webhook_body(pull_request_number, pull_request_head).to_json
       req.headers['Content-Type'] = 'application/json'
+      req.headers['X-EveryPolitician-Event'] = action
       req.options.timeout = 10
       req.options.open_timeout = 5
     end
   end
 
-  def countries_json
-    open('https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json').read
+  def webhook_body(pull_request_number, pull_request_head)
+    {
+      countries_json_url: "https://cdn.rawgit.com/everypolitician/everypolitician-data/#{pull_request_head}/countries.json",
+      pull_request_url: "https://api.github.com/repos/everypolitician/everypolitician-data/pulls/#{pull_request_number}"
+    }
   end
 end
