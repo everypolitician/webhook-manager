@@ -29,34 +29,4 @@ end
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new
 
-namespace :webhooks do
-  desc 'Configure webhooks on GitHub'
-  task configure: :app do
-    require 'open-uri'
-    require 'json'
-    urls = open('https://everypolitician-app-manager.herokuapp.com/urls.json').read
-    urls = JSON.parse(urls)
-    event_handler_url = urls['webhook_event_handler_url']
-    github = Everypoliticianbot.github
-    webhooks = github.hooks(ENV['EVERYPOLITICIAN_DATA_REPO'])
-    webhook = webhooks.find { |h| h[:config][:url] == event_handler_url }
-    if webhook.nil?
-      config = {
-        url: event_handler_url,
-        content_type: 'json',
-        secret: ENV['GITHUB_WEBHOOK_SECRET']
-      }
-      options = { events: [:pull_request, :deployment], active: true }
-      repo = ENV['EVERYPOLITICIAN_DATA_REPO']
-      github.create_hook(
-        repo,
-        'web',
-        config,
-        options
-      )
-      puts "Webhook created for #{repo}"
-    end
-  end
-end
-
 task default: :test
