@@ -56,6 +56,34 @@ get '/' do
   erb :index
 end
 
+post '/' do
+  return "Unhandled GitHub event: #{github_event}" unless github_event == 'pull_request'
+  pull_request_action = case payload['action']
+  when 'opened'
+    :pull_request_opened
+  when 'synchronize'
+    :pull_request_synchronize
+  when 'closed'
+    if payload['pull_request']['merged']
+      :pull_request_merged
+    else
+      :pull_request_closed
+    end
+  else
+    halt 400, "Unknown action: #{payload['action']}"
+  end
+  applications = Application.exclude(webhook_url: '').where(pull_request_action => true)
+  applications.each do |application|
+    SendWebhookJob.perform_async(
+      application.webhook_url,
+      pull_request_action,
+      payload['number'],
+      payload['pull_request']['head']['sha']
+    )
+  end
+  "Dispatched #{applications.count} webhooks"
+end
+
 get '/auth/github/callback' do
   auth = request.env['omniauth.auth']
   user = User.first(github_uid: auth[:uid])

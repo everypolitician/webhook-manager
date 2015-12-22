@@ -6,6 +6,26 @@ describe 'App' do
     assert last_response.ok?
   end
 
+  it 'processes webhooks' do
+    body = {
+      action: 'opened',
+      number: '42',
+      pull_request: {
+        head: {
+          sha: 'abc123'
+        }
+      }
+    }.to_json
+    user = User.create(name: 'Foo', email: 'foo@example.com', github_uid: '12', github_token: 'abc')
+    user.add_application(name: 'Test', webhook_url: 'http://example.org')
+    assert_equal 0, SendWebhookJob.jobs.size
+    post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
+    assert_equal 200, last_response.status
+    assert_equal 1, SendWebhookJob.jobs.size
+    assert_equal ['http://example.org', 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal "Dispatched 1 webhooks", last_response.body
+  end
+
   it 'lists webhook urls' do
     get '/urls.json'
     assert last_response.ok?
@@ -101,6 +121,16 @@ describe 'App' do
         assert last_response.ok?
         assert_equal 'Unknown event type: flargle', last_response.body
       end
+    end
+  end
+
+  describe SendWebhookJob do
+    it 'dispatches webhook' do
+      stub_request(:post, 'http://example.com/').to_return(status: 200)
+      send_webhook_job = SendWebhookJob.new
+      send_webhook_job.perform('http://example.com', 'pull_request_opened', '42', 'abc123')
+      body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
+      assert_requested :post, 'http://example.com', body: body, times: 1
     end
   end
 end
