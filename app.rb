@@ -7,7 +7,6 @@ require 'json'
 require 'tilt/erb'
 require 'active_support/core_ext'
 
-$LOAD_PATH << File.expand_path('../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
 configure do
@@ -106,24 +105,6 @@ get '/logout' do
   session.clear
   flash[:notice] = 'You have been logged out'
   redirect to('/')
-end
-
-get '/urls.json' do
-  content_type 'application/json'
-  JSON.pretty_generate(webhook_event_handler_url: url('/event_handler'))
-end
-
-post '/event_handler' do
-  case github_event
-  when 'pull_request'
-    HandleEverypoliticianDataPullRequestJob.perform_async(payload)
-    'HandleEverypoliticianDataPullRequestJob queued'
-  when 'deployment'
-    DeployViewerSinatraPullRequestJob.perform_async(payload)
-    'DeployViewerSinatraPullRequestJob queued'
-  else
-    "Unknown event type: #{github_event}"
-  end
 end
 
 post '/applications' do
