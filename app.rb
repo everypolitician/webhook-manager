@@ -115,12 +115,12 @@ end
 
 post '/webhooks' do
   halt if current_user.nil?
-  @application = Application.new(params[:application])
+  @application = Application.new(params[:application] || {})
   @application.user_id = current_user.id
   if @application.valid?
     @application.save
     flash[:notice] = 'Webhook successfully added.'
-    redirect to('/')
+    redirect to('/webhooks')
   else
     erb :form
   end
@@ -144,7 +144,7 @@ patch '/webhooks/:id' do
   if @application.valid?
     @application.save
     flash[:notice] = 'Webhook successfully updated.'
-    redirect to('/')
+    redirect to('/webhooks')
   else
     erb :form
   end
@@ -158,5 +158,5 @@ delete '/webhooks/:id' do
   else
     flash[:alert] = 'Failed to delete webhook.'
   end
-  redirect to('/')
+  redirect to('/webhooks')
 end

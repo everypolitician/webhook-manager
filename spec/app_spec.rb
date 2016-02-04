@@ -75,4 +75,25 @@ describe 'App' do
       assert_requested :post, 'http://example.com', body: body, times: 1
     end
   end
+
+  describe 'creating an application' do
+    before { login! }
+
+    it 'fails if missing webhook url' do
+      post '/webhooks'
+      assert last_response.ok?, "Expected last response to be 2xx"
+      assert last_response.body.include?('Some errors prevented this application from being saved')
+    end
+
+    it 'adds the specified attributes to the model' do
+      post '/webhooks', application: { name: 'Test', webhook_url: 'https://example.com/webhook_handler' }
+      assert last_response.redirect?, "Expected response to redirect"
+      assert_equal 'http://example.org/webhooks', last_response['Location']
+      follow_redirect!
+      assert last_response.body.include?('Webhook successfully added.')
+      app = Application.last
+      assert_equal 'Test', app.name
+      assert_equal 'https://example.com/webhook_handler', app.webhook_url
+    end
+  end
 end
