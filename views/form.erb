@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading">
+        <a href="<%= url('/') %>">Webhooks</a> /
+        <b>
+          <% if @application.id %>
+            Manage webhook
+          <% else %>
+            Add webhook
+          <% end %>
+        </b>
+      </div>
+      <div class="panel-body">
+        <p>
+          We will send a POST request to your webhook&rsquo;s
+          <strong>URL</strong> whenever EveryPolitician&rsquo;s
+          data changes.
+        </p>
+
+        <hr>
+
+        <p>Register a new webhook:</p>
+
+        <% if @application.errors.any? %>
+          <div class="alert alert-danger" role="alert">
+            <p>Some errors prevented this application from being saved:</p>
+            <ul>
+              <% @application.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <form method="post" action="<%= @application.id ? url("/webhooks/#{@application.id}") : url('/webhooks') %>">
+          <% if @application.id %>
+            <input type="hidden" name="_method" value="patch">
+          <% end %>
+          <div class="form-group <%= @application.errors.on(:name) ? 'has-error' : '' %>">
+            <label class="control-label" for="application_name">Webhook name *</label>
+            <input type="text" id="application_name" name="application[name]" class="form-control" value="<%= @application.name %>" >
+          </div>
+
+          <div class="form-group <%= @application.errors.on(:webhook_url) ? 'has-error' : '' %>">
+            <label class="control-label" for="application_webhook_url">Webhook URL *</label>
+            <input type="url" id="application_webhook_url" name="application[webhook_url]" class="form-control" placeholder="https://example.org/webhook_handler" value="<%= @application.webhook_url %>" >
+          </div>
+
+          <% if @application.id %>
+            <input type="submit" value="Update webhook" class="btn btn-default btn-success">
+            <form method="post" action="<%= url "/webhooks/#{@application.id}" %>">
+              <input type="hidden" name="_method" value="delete">
+              <button class="btn btn-default btn-danger" type="submit">Delete webhook</button>
+            </form>
+          <% else %>
+            <input type="submit" value="Create webhook" class="btn btn-default btn-success">
+          <% end %>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

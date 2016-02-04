@@ -49,10 +49,10 @@ use Rack::Flash
 
 get '/' do
   if current_user
-    @application = Application.new
-    @applications = current_user.applications
+    redirect to('/webhooks')
+  else
+    erb :index
   end
-  erb :index
 end
 
 post '/' do
@@ -107,21 +107,56 @@ get '/logout' do
   redirect to('/')
 end
 
-post '/applications' do
+get '/webhooks' do
   halt if current_user.nil?
   @applications = current_user.applications
+  erb :webhooks
+end
+
+post '/webhooks' do
+  halt if current_user.nil?
   @application = Application.new(params[:application])
   @application.user_id = current_user.id
   if @application.valid?
     @application.save
+    flash[:notice] = 'Webhook successfully added.'
     redirect to('/')
   else
-    erb :index
+    erb :form
   end
 end
 
-get '/applications/:id' do
+get '/webhooks/new' do
+  @application = Application.new
+  erb :form
+end
+
+get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
-  erb :application
+  erb :form
+end
+
+patch '/webhooks/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  @application.set(params[:application])
+  if @application.valid?
+    @application.save
+    flash[:notice] = 'Webhook successfully updated.'
+    redirect to('/')
+  else
+    erb :form
+  end
+end
+
+delete '/webhooks/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  if @application.destroy
+    flash[:notice] = 'Webhook successfully deleted.'
+  else
+    flash[:alert] = 'Failed to delete webhook.'
+  end
+  redirect to('/')
 end
