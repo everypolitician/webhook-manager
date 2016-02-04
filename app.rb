@@ -55,12 +55,6 @@ get '/' do
   end
 end
 
-get '/webhooks' do
-  halt if current_user.nil?
-  @applications = current_user.applications
-  erb :webhooks
-end
-
 post '/' do
   return "Unhandled GitHub event: #{github_event}" unless github_event == 'pull_request'
   pull_request_action = case payload['action']
@@ -111,6 +105,12 @@ get '/logout' do
   session.clear
   flash[:notice] = 'You have been logged out'
   redirect to('/')
+end
+
+get '/webhooks' do
+  halt if current_user.nil?
+  @applications = current_user.applications
+  erb :webhooks
 end
 
 post '/webhooks' do
