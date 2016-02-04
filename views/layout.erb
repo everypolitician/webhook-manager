@@ -10,6 +10,13 @@
     <!-- Bootstrap -->
     <link href="<%= url '/css/bootstrap.min.css' %>" rel="stylesheet">
 
+    <style>
+      .webhook-secret .webhook-secret-standin { display: block; }
+      .webhook-secret .webhook-secret-field { display: none; }
+      .webhook-secret.open .webhook-secret-standin { display: none; }
+      .webhook-secret.open .webhook-secret-field { display: block; }
+    </style>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -29,5 +36,6 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/jquery-ujs.js"></script>
+    <script src="/js/main.js"></script>
   </body>
 </html>

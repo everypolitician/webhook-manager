@@ -48,6 +48,25 @@
             <input type="url" id="application_webhook_url" name="application[webhook_url]" class="form-control" placeholder="https://example.org/webhook_handler" value="<%= @application.webhook_url %>" >
           </div>
 
+          <div class="form-group">
+            <label class="control-label" for="application_secret">Secret</label>
+            <% if !@application.secret || @application.secret.empty? %>
+              <input autocomplete="off" class="form-control" type="password" id="application_secret" name="application[secret]">
+            <% else %>
+              <div class="js-webhook-secret webhook-secret">
+                <div class="webhook-secret-standin">
+                  ∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗∗
+                  —
+                  <a href="#edit" class="js-details-target">Edit</a>
+                </div>
+                <div class="webhook-secret-field">
+                  <input autocomplete="off" class="form-control" disabled="disabled" id="application_secret" name="application[secret]" type="password">
+                  <a href="#cancel" class="js-details-target">Cancel</a>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
           <% if @application.id %>
             <input type="submit" value="Update webhook" class="btn btn-default btn-success" data-disable-with="Saving...">
             <a href="<%= url("/webhooks/#{@application.id}") %>" class="btn btn-default btn-danger" data-confirm="Are you sure you want to delete this webhook?" data-method="delete" rel="nofollow" role="button">Delete webhook</a>
