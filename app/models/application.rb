@@ -4,6 +4,6 @@ class Application < Sequel::Model
 
   def validate
     super
-    validates_presence [:name]
+    validates_presence [:name, :webhook_url]
   end
 end

@@ -34,6 +34,7 @@ describe 'App' do
       end
       assert_equal 'http://example.org/auth/github/callback', last_request.url
       follow_redirect!
+      follow_redirect!
       assert last_response.body.include?(
         'You have successfully logged in with GitHub'
       )

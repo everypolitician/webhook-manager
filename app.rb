@@ -49,11 +49,16 @@ use Rack::Flash
 
 get '/' do
   if current_user
-    @applications = current_user.applications
-    erb :index
+    redirect to('/webhooks')
   else
-    erb :login
+    erb :index
   end
+end
+
+get '/webhooks' do
+  halt if current_user.nil?
+  @applications = current_user.applications
+  erb :webhooks
 end
 
 post '/' do
@@ -110,24 +115,37 @@ end
 
 post '/webhooks' do
   halt if current_user.nil?
-  @applications = current_user.applications
   @application = Application.new(params[:application])
   @application.user_id = current_user.id
   if @application.valid?
     @application.save
+    flash[:notice] = 'Webhook successfully added.'
     redirect to('/')
   else
-    erb :index
+    erb :form
   end
 end
 
 get '/webhooks/new' do
   @application = Application.new
-  erb :new
+  erb :form
 end
 
 get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
-  erb :application
+  erb :form
+end
+
+patch '/webhooks/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  @application.set(params[:application])
+  if @application.valid?
+    @application.save
+    flash[:notice] = 'Webhook successfully updated.'
+    redirect to('/')
+  else
+    erb :form
+  end
 end
