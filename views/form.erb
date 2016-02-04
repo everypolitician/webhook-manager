@@ -50,7 +50,15 @@
             <input type="url" id="application_webhook_url" name="application[webhook_url]" class="form-control" placeholder="https://example.org/webhook_handler" value="<%= @application.webhook_url %>" >
           </div>
 
-          <input type="submit" value="<%= @application.id ? 'Update' : 'Create' %>" class="btn btn-default">
+          <% if @application.id %>
+            <input type="submit" value="Update webhook" class="btn btn-default btn-success">
+            <form method="post" action="<%= url "/webhooks/#{@application.id}" %>">
+              <input type="hidden" name="_method" value="delete">
+              <button class="btn btn-default btn-danger" type="submit">Delete webhook</button>
+            </form>
+          <% else %>
+            <input type="submit" value="Create webhook" class="btn btn-default btn-success">
+          <% end %>
         </form>
       </div>
 

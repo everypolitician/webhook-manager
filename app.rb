@@ -149,3 +149,14 @@ patch '/webhooks/:id' do
     erb :form
   end
 end
+
+delete '/webhooks/:id' do
+  halt if current_user.nil?
+  @application = current_user.applications_dataset.first(id: params[:id])
+  if @application.destroy
+    flash[:notice] = 'Webhook successfully deleted.'
+  else
+    flash[:alert] = 'Failed to delete webhook.'
+  end
+  redirect to('/')
+end
