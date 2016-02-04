@@ -18,4 +18,9 @@ class Minitest::Spec
       body
     )
   end
+
+  def login!
+    get '/auth/github'
+    3.times { follow_redirect! }
+  end
 end
