@@ -67,22 +67,41 @@ describe 'App' do
   end
 
   describe SendWebhookJob do
-    it 'dispatches webhook' do
+    before do
       stub_request(:post, 'http://example.com/').to_return(status: 200)
-      send_webhook_job = SendWebhookJob.new
-      user = User.create(
+      @user = User.create(
         name: 'Test',
         email: 'test@example.com',
         github_uid: '123',
         github_token: '123abc'
       )
-      application = user.add_application(
+      @application = @user.add_application(
         name: 'Test',
         webhook_url: 'http://example.com'
       )
-      send_webhook_job.perform(application.id, 'pull_request_opened', '42', 'abc123')
-      body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
-      assert_requested :post, 'http://example.com', body: body, times: 1
+      @body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
+    end
+
+    it 'dispatches webhook' do
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123')
+      assert_requested :post, 'http://example.com', body: @body, times: 1
+    end
+
+    it 'signs the webhook if secret is provided' do
+      @application.update(secret: 'myspecialsecret')
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123')
+      expected_signature = 'sha1=' + OpenSSL::HMAC.hexdigest(
+        SendWebhookJob::HMAC_DIGEST,
+        'myspecialsecret',
+        @body
+      )
+      assert_requested(
+        :post,
+        'http://example.com',
+        body: @body,
+        times: 1,
+        headers: { 'X-EveryPolitician-Signature' => expected_signature }
+      )
     end
   end
 
