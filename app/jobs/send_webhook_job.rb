@@ -10,8 +10,9 @@ class SendWebhookJob
   # these won't be delivered as frequently.
   sidekiq_options retry: false
 
-  def perform(webhook_url, action, pull_request_number, pull_request_head)
-    Faraday.post(webhook_url) do |req|
+  def perform(application_id, action, pull_request_number, pull_request_head)
+    application = Application[application_id]
+    Faraday.post(application.webhook_url) do |req|
       req.body = webhook_body(pull_request_number, pull_request_head).to_json
       req.headers['Content-Type'] = 'application/json'
       req.headers['X-EveryPolitician-Event'] = action

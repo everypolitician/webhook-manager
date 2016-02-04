@@ -74,7 +74,7 @@ post '/' do
   applications = Application.exclude(webhook_url: '').where(pull_request_action => true)
   applications.each do |application|
     SendWebhookJob.perform_async(
-      application.webhook_url,
+      application.id,
       pull_request_action,
       payload['number'],
       payload['pull_request']['head']['sha']
