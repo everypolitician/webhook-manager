@@ -51,8 +51,10 @@ get '/' do
   if current_user
     @application = Application.new
     @applications = current_user.applications
+    erb :index
+  else
+    erb :login
   end
-  erb :index
 end
 
 post '/' do

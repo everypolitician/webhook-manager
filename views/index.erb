@@ -1,70 +1,27 @@
-<% if current_user %>
-  <div class="row">
-
-    <div class="col-md-8 col-md-offset-2">
-      <div class="panel panel-default">
-        <!-- Default panel contents -->
-        <div class="panel-heading">
-          <b>Webhooks</b>
-        </div>
-        <div class="panel-body">
-          <p>Webhooks allow external services to be notified when certain events happen within your repository. When the specified events happen, we’ll send a POST request to each of the URLs you provide.</p>
-        </div>
-
-        <!-- List group -->
-        <ul class="list-group">
-          <% @applications.each do |application| %>
-            <li class="list-group-item">
-              <div class="btn-group pull-right">
-                <a class="btn btn-default btn-xs" href="<%= url "/applications/#{application.id}" %>"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
-                <a class="btn btn-default btn-xs" style="color: #900" href="<%= url "/applications/#{application.id}" %>"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
-              </div>
-              <a href="<%= url "/applications/#{application.id}" %>"><%= application.webhook_url %></a>
-            </li>
-          <% end %>
-        </ul>
+<div class="row">
+  <div class="col-md-8 col-md-offset-2">
+    <div class="panel panel-default">
+      <!-- Default panel contents -->
+      <div class="panel-heading">
+        <a class="btn btn-default btn-xs pull-right"  href="<%= url '/webhooks/new' %>">Add webhook</a>
+        <b>Webhooks</b>
+      </div>
+      <div class="panel-body">
+        <p>Webhooks allow external services to be notified when certain events happen within your repository. When the specified events happen, we’ll send a POST request to each of the URLs you provide.</p>
       </div>
 
-      <% if @application.errors.any? %>
-        <p>Some errors prevented this application from being saved:</p>
-        <ul>
-          <% @application.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      <% end %>
-
-      <form method="post" action="<%= url '/applications' %>">
-        <p>
-        The <strong>application name</strong> helps identify your
-        application (especially handy if you have more than one).
-        <br>
-        The app manager will send a POST request to your application&rsquo;s
-        <strong>webhook URL</strong> whenever EveryPolitician&rsquo;s
-        data changes.
-        </p>
-        <p>Register a new application:</p>
-        <div class="form-group">
-          <label for="application_name">Application name</label>
-          <input type="text" id="application_name" name="application[name]" class="form-control">
-        </div>
-
-        <div class="form-group">
-          <label for="application_webhook_url">Webhook URL</label>
-          <input type="url" id="application_webhook_url" name="application[webhook_url]" class="form-control">
-        </div>
-
-        <input type="submit" value="Create" class="btn btn-default">
-      </form>
-
+      <!-- List group -->
+      <ul class="list-group">
+        <% @applications.each do |application| %>
+          <li class="list-group-item">
+            <div class="btn-group pull-right">
+              <a class="btn btn-default btn-xs" href="<%= url "/webhooks/#{application.id}" %>"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
+              <a class="btn btn-default btn-xs" style="color: #900" href="<%= url "/webhooks/#{application.id}" %>"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+            </div>
+            <a href="<%= url "/webhooks/#{application.id}" %>"><%= application.webhook_url %></a>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
-
-<% else %>
-
-  <p class="login-prompt">
-    <a href="<%= url '/auth/github' %>">Log in with GitHub</a>
-    to create your first app.
-  </p>
-
-<% end %>
+</div>
