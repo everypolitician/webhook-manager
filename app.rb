@@ -49,7 +49,6 @@ use Rack::Flash
 
 get '/' do
   if current_user
-    @application = Application.new
     @applications = current_user.applications
     erb :index
   else
@@ -109,7 +108,7 @@ get '/logout' do
   redirect to('/')
 end
 
-post '/applications' do
+post '/webhooks' do
   halt if current_user.nil?
   @applications = current_user.applications
   @application = Application.new(params[:application])
@@ -122,7 +121,12 @@ post '/applications' do
   end
 end
 
-get '/applications/:id' do
+get '/webhooks/new' do
+  @application = Application.new
+  erb :new
+end
+
+get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
   erb :application
