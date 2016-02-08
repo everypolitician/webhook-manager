@@ -6,13 +6,8 @@ class SendWebhookJob
 
   include Sidekiq::Worker
 
-  # Discard the job immediately if it fails.
-  #
-  # FIXME: This is OK for the webhook for all countries because that usually
-  # gets triggered multiple times per day. When we add webhooks for individual
-  # countries we should then consider adding some kind of retry mechanism as
-  # these won't be delivered as frequently.
-  sidekiq_options retry: false
+  # Discard the job if it fails 3 times.
+  sidekiq_options retry: 3
 
   def perform(application_id, action, pull_request_number, pull_request_head)
     application = Application[application_id]
