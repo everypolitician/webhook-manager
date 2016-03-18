@@ -26,7 +26,7 @@ class SendWebhookJob
 
   def webhook_body(pull_request_number, pull_request_head)
     {
-      countries_json_url: "https://cdn.rawgit.com/everypolitician/everypolitician-data/#{pull_request_head}/countries.json",
+      countries_json_url: "https://github.com/everypolitician/everypolitician-data/raw/#{pull_request_head}/countries.json",
       pull_request_url: "https://api.github.com/repos/everypolitician/everypolitician-data/pulls/#{pull_request_number}"
     }
   end
