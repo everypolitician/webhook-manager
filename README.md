@@ -4,6 +4,8 @@
 
 Listens for events from GitHub and 3rd party apps using [EveryPolitician](http://everypolitician.org) data. Allows apps that use EveryPolitician data to submit updates to the data.
 
+The EveryPolitician Bot has [described how to use this service](https://medium.com/@everypolitician/i-webhooks-pass-it-on-703e35e9ee93).
+
 ## Installation
 
 Get the code from GitHub
