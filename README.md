@@ -10,8 +10,9 @@ Listens for events from GitHub and 3rd party apps using [EveryPolitician](http:/
 This is superuseful for any apps that want to be alerted whenever the EveryPolitician data changes.
 The EveryPolitician Bot has [described how to use this service in more detail](https://medium.com/@everypolitician/i-webhooks-pass-it-on-703e35e9ee93).
 
+We're running this service for you at https://everypolitician-app-manager.herokuapp.com/
 
-## Installation
+## Developers only: Installation
 
 Get the code from GitHub
 
