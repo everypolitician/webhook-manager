@@ -2,9 +2,14 @@
 
 [![Build Status](https://travis-ci.org/everypolitician/app-manager.svg?branch=master)](https://travis-ci.org/everypolitician/app-manager)
 
-Listens for events from GitHub and 3rd party apps using [EveryPolitician](http://everypolitician.org) data. Allows apps that use EveryPolitician data to submit updates to the data.
+Listens for events from GitHub and 3rd party apps using [EveryPolitician](http://everypolitician.org) data and passes them on as webhooks in the same manner as GitHub's webhooks, featuring:
 
-The EveryPolitician Bot has [described how to use this service](https://medium.com/@everypolitician/i-webhooks-pass-it-on-703e35e9ee93).
+* JSON payload containing `countries_json_url` and `pull_request_url`
+* signed (with the secret you provided) header: `X-EveryPolitician-Signature` 
+
+This is superuseful for any apps that want to be alerted whenever the EveryPolitician data changes.
+The EveryPolitician Bot has [described how to use this service in more detail](https://medium.com/@everypolitician/i-webhooks-pass-it-on-703e35e9ee93).
+
 
 ## Installation
 
