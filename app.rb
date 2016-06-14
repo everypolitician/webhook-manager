@@ -18,6 +18,10 @@ configure do
       "postgres:///everypolitician_#{environment}"
   }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
+
+  Octokit.configure do |c|
+    c.access_token = ENV['GITHUB_ACCESS_TOKEN']
+  end
 end
 
 configure :production do
@@ -72,16 +76,30 @@ post '/' do
   else
     halt 400, "Unknown action: #{payload['action']}"
   end
+  legislatures = []
+  pr_files = Octokit.pull_request_files(payload['repository']['full_name'], payload['number'])
+  pr_files.each do |file|
+    if /^data\/(?<file_legislature>[^\/]*\/[^\/]*)\/.*/ =~ file['filename']
+      if not legislatures.include? file_legislature
+        legislatures.push(file_legislature)
+      end
+    end
+  end
   applications = Application.exclude(webhook_url: '').where(pull_request_action => true)
+  count = 0
   applications.each do |application|
+    if application.legislature and not legislatures.include? application.legislature
+      next
+    end
     SendWebhookJob.perform_async(
       application.id,
       pull_request_action,
       payload['number'],
       payload['pull_request']['head']['sha']
     )
+    count += 1
   end
-  "Dispatched #{applications.count} webhooks"
+  "Dispatched #{count} webhooks"
 end
 
 get '/auth/github/callback' do

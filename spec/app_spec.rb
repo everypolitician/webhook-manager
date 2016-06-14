@@ -1,6 +1,25 @@
 require 'spec_helper'
 
 describe 'App' do
+  before do
+    stub_request(
+      :get,
+      "https://api.github.com/repos/example/example/pulls/42/files"
+    ).to_return(
+      :status => 200,
+      :body => '[{"filename": "data/example/example/file"}]',
+      :headers => {'Content-Type'=>'application/json'}
+    )
+    stub_request(
+      :get,
+      "https://api.github.com/repos/example/example/pulls/43/files"
+    ).to_return(
+      :status => 200,
+      :body => '[{"filename": "not/a/legislature"}]',
+      :headers => {'Content-Type'=>'application/json'}
+    )
+  end
+
   it 'has a homepage' do
     get '/'
     assert last_response.ok?
@@ -14,6 +33,9 @@ describe 'App' do
         head: {
           sha: 'abc123'
         }
+      },
+      repository: {
+        full_name: 'example/example'
       }
     }.to_json
     user = User.create(name: 'Foo', email: 'foo@example.com', github_uid: '12', github_token: 'abc')
@@ -23,6 +45,57 @@ describe 'App' do
     assert_equal 200, last_response.status
     assert_equal 1, SendWebhookJob.jobs.size
     assert_equal [application.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal "Dispatched 1 webhooks", last_response.body
+  end
+
+  it 'only process webhooks for the selected legislature' do
+    body = {
+      action: 'opened',
+      number: '42',
+      pull_request: {
+        head: {
+          sha: 'abc123'
+        }
+      },
+      repository: {
+        full_name: 'example/example'
+      }
+    }.to_json
+    user = User.create(name: 'Foo', email: 'foo@example.com', github_uid: '12', github_token: 'abc')
+    application1 = user.add_application(name: 'Test', webhook_url: 'http://example.org')
+    application2 = user.add_application(name: 'Test', webhook_url: 'http://example.org', legislature: 'example/other')
+    application3 = user.add_application(name: 'Test', webhook_url: 'http://example.org', legislature: 'example/example')
+    assert_equal 0, SendWebhookJob.jobs.size
+    post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
+    assert_equal 200, last_response.status
+    assert_equal [application1.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal [application3.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs[1]['args']
+    assert_equal 2, SendWebhookJob.jobs.size
+    assert_equal "Dispatched 2 webhooks", last_response.body
+  end
+
+  it 'sends webhooks for PR not related to a legislature' do
+    body = {
+      action: 'opened',
+      number: '43',
+      pull_request: {
+        head: {
+          sha: 'abc123'
+        }
+      },
+      repository: {
+        full_name: 'example/example'
+      }
+    }.to_json
+    user = User.create(name: 'Foo', email: 'foo@example.com', github_uid: '12', github_token: 'abc')
+    application1 = user.add_application(name: 'Test', webhook_url: 'http://example.org')
+    application2 = user.add_application(name: 'Test', webhook_url: 'http://example.org', legislature: 'example/other')
+    application3 = user.add_application(name: 'Test', webhook_url: 'http://example.org', legislature: 'example/example')
+    assert_equal 0, SendWebhookJob.jobs.size
+    post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
+    assert_equal 200, last_response.status
+    assert_equal [application1.id, 'pull_request_opened', '43', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal 1, SendWebhookJob.jobs.size
     assert_equal "Dispatched 1 webhooks", last_response.body
   end
 
