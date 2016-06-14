@@ -106,7 +106,16 @@ describe 'App' do
   end
 
   describe 'creating an application' do
-    before { login! }
+    before do
+      stub_request(
+        :get,
+        "https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json"
+      ).to_return(
+        :status => 200,
+        :body => '[{"name":"Abkhazia","legislatures":[{"name":"People\'s Assembly"}]}]'
+      )
+      login!
+    end
 
     it 'fails if missing webhook url' do
       post '/webhooks'
@@ -133,6 +142,16 @@ describe 'App' do
       assert_equal 'Test', app.name
       assert_equal 'https://example.com/webhook_handler', app.webhook_url
       assert_equal 's3cret', app.secret
+    end
+
+    it 'allows specifying a legislature' do
+      post '/webhooks', application: { name: 'Test', webhook_url: 'https://example.com/webhook_handler', legislature: 'Canada/Commons' }
+      assert last_response.redirect?, "Expected response to redirect"
+      assert_equal 'http://example.org/webhooks', last_response['Location']
+      app = Application.last
+      assert_equal 'Test', app.name
+      assert_equal 'https://example.com/webhook_handler', app.webhook_url
+      assert_equal 'Canada/Commons', app.legislature
     end
   end
 end

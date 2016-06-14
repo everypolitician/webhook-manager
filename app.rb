@@ -6,6 +6,7 @@ require 'open-uri'
 require 'json'
 require 'tilt/erb'
 require 'active_support/core_ext'
+require 'everypolitician'
 
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
@@ -122,12 +123,14 @@ post '/webhooks' do
     flash[:notice] = 'Webhook successfully added.'
     redirect to('/webhooks')
   else
+    @countries = EveryPolitician.countries
     erb :form
   end
 end
 
 get '/webhooks/new' do
   @application = Application.new
+  @countries = EveryPolitician.countries
   erb :form
 end
 
