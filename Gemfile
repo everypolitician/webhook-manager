@@ -17,7 +17,7 @@ gem 'rubocop', require: false
 gem 'faraday'
 gem 'pry', require: false
 gem 'activesupport', require: 'active_support'
-gem 'everypolitician'
+gem 'everypolitician', github: 'everypolitician/everypolitician-ruby'
 gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
 gem 'sinatra-github_webhooks'
 

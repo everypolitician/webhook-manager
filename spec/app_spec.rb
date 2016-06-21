@@ -185,7 +185,7 @@ describe 'App' do
         "https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json"
       ).to_return(
         :status => 200,
-        :body => '[{"name":"Abkhazia","legislatures":[{"name":"People\'s Assembly"}]}]'
+        :body => '[{"name":"Abkhazia","legislatures":[{"name":"People\'s Assembly","sources_directory": "data/Abkhazia/Assembly"}]}]',
       )
       login!
     end
