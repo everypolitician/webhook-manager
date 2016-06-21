@@ -51,10 +51,11 @@
           <div class="form-group <%= @application.errors.on(:legislature) ? 'has-error' : '' %>">
             <label class="control-label" for="application_legislature">Legislature</label>
             <select id="application_legislature" name="application[legislature]" class="form-control">
+                <option value="">All legislatures</option>
                 <% @countries.each do |country| %>
-                    <option value="">All legislatures</option>
                     <% country.legislatures.each do |legislature| %>
-                        <option value="<%= country.name %>/<%= legislature.name %>"><%= country.name %> - <%= legislature.name %></option>
+                        <% dir = country.name + '/' + legislature.name %>
+                        <option <%= @application.legislature == dir ? 'selected ' : '' %>value="<%= dir %>"><%= country.name %> - <%= legislature.name %></option>
                     <% end %>
                 <% end %>
             </select>
