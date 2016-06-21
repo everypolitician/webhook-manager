@@ -90,6 +90,7 @@ post '/' do
   applications = Application
     .where(:legislature => legislatures_in_pr(payload))
     .or(:legislature => nil)
+    .or(:legislature => '')
     .exclude(webhook_url: '')
     .where(pull_request_action => true)
   applications.each do |application|
