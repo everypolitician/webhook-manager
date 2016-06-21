@@ -54,7 +54,7 @@
                 <option value="">All legislatures</option>
                 <% @countries.each do |country| %>
                     <% country.legislatures.each do |legislature| %>
-                        <% dir = country.name + '/' + legislature.name %>
+                        <% dir = legislature_for_file(legislature.raw_data[:sources_directory]) %>
                         <option <%= @application.legislature == dir ? 'selected ' : '' %>value="<%= dir %>"><%= country.name %> - <%= legislature.name %></option>
                     <% end %>
                 <% end %>
