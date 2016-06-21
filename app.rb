@@ -53,10 +53,7 @@ helpers do
 
   def legislatures_in_pr(payload)
     pr_files = Octokit.pull_request_files(payload['repository']['full_name'], payload['number'])
-    included_legislatures = Set.new
-    included_legislatures.add(
-      pr_files.map { |f| legislature_for_file(f['filename']) }.compact
-    ).to_a
+    pr_files.map { |f| legislature_for_file(f['filename']) }.compact.uniq
   end
 end
 
