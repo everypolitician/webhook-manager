@@ -157,6 +157,7 @@ end
 get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
+  @countries = EveryPolitician.countries
   erb :form
 end
 
