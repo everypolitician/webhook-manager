@@ -6,6 +6,7 @@ require 'open-uri'
 require 'json'
 require 'tilt/erb'
 require 'active_support/core_ext'
+require 'everypolitician'
 
 $LOAD_PATH << File.expand_path('../', __FILE__)
 
@@ -17,6 +18,10 @@ configure do
       "postgres:///everypolitician_#{environment}"
   }
   set :github_webhook_secret, ENV['GITHUB_WEBHOOK_SECRET']
+
+  Octokit.configure do |c|
+    c.access_token = ENV['GITHUB_ACCESS_TOKEN']
+  end
 end
 
 configure :production do
@@ -38,6 +43,17 @@ require 'app/jobs'
 helpers do
   def current_user
     @current_user ||= User[session[:user_id]]
+  end
+
+  def legislature_for_file(path)
+    dirs = path.split('/')
+    return nil unless dirs.first == 'data'
+    return dirs[1,2].join('/')
+  end
+
+  def legislatures_in_pr(payload)
+    pr_files = Octokit.pull_request_files(payload['repository']['full_name'], payload['number'])
+    pr_files.map { |f| legislature_for_file(f['filename']) }.compact.uniq
   end
 end
 
@@ -71,7 +87,12 @@ post '/' do
   else
     halt 400, "Unknown action: #{payload['action']}"
   end
-  applications = Application.exclude(webhook_url: '').where(pull_request_action => true)
+  applications = Application
+    .where(:legislature => legislatures_in_pr(payload))
+    .or(:legislature => nil)
+    .or(:legislature => '')
+    .exclude(webhook_url: '')
+    .where(pull_request_action => true)
   applications.each do |application|
     SendWebhookJob.perform_async(
       application.id,
@@ -122,18 +143,21 @@ post '/webhooks' do
     flash[:notice] = 'Webhook successfully added.'
     redirect to('/webhooks')
   else
+    @countries = EveryPolitician.countries
     erb :form
   end
 end
 
 get '/webhooks/new' do
   @application = Application.new
+  @countries = EveryPolitician.countries
   erb :form
 end
 
 get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
+  @countries = EveryPolitician.countries
   erb :form
 end
 

@@ -48,6 +48,18 @@
             <input type="url" id="application_webhook_url" name="application[webhook_url]" class="form-control" placeholder="https://example.org/webhook_handler" value="<%= @application.webhook_url %>" >
           </div>
 
+          <div class="form-group <%= @application.errors.on(:legislature) ? 'has-error' : '' %>">
+            <label class="control-label" for="application_legislature">Legislature</label>
+            <select id="application_legislature" name="application[legislature]" class="form-control">
+                <option value="">All legislatures</option>
+                <% @countries.each do |country| %>
+                    <% country.legislatures.each do |legislature| %>
+                        <option <%= @application.legislature == legislature.directory ? 'selected ' : '' %>value="<%= legislature.directory %>"><%= country.name %> - <%= legislature.name %></option>
+                    <% end %>
+                <% end %>
+            </select>
+          </div>
+
           <div class="form-group">
             <label class="control-label" for="application_secret">Secret</label>
             <% if !@application.secret || @application.secret.empty? %>
