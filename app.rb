@@ -87,8 +87,9 @@ post '/' do
   else
     halt 400, "Unknown action: #{payload['action']}"
   end
+  countries = legislatures_in_pr(payload)
   applications = Application
-    .where(:legislature => legislatures_in_pr(payload))
+    .where(:legislature => countries)
     .or(:legislature => nil)
     .or(:legislature => '')
     .exclude(webhook_url: '')
@@ -98,7 +99,8 @@ post '/' do
       application.id,
       pull_request_action,
       payload['number'],
-      payload['pull_request']['head']['sha']
+      payload['pull_request']['head']['sha'],
+      countries
     )
   end
   "Dispatched #{applications.count} webhooks"

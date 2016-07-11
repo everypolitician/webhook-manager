@@ -9,10 +9,10 @@ class SendWebhookJob
   # Discard the job if it fails 3 times.
   sidekiq_options retry: 3
 
-  def perform(application_id, action, pull_request_number, pull_request_head)
+  def perform(application_id, action, pull_request_number, pull_request_head, pull_request_countries)
     application = Application[application_id]
     Faraday.post(application.webhook_url) do |req|
-      req.body = webhook_body(pull_request_number, pull_request_head).to_json
+      req.body = webhook_body(pull_request_number, pull_request_head, pull_request_countries).to_json
       if application.secret && !application.secret.empty?
         req.headers['X-EveryPolitician-Signature'] =
           'sha1='+OpenSSL::HMAC.hexdigest(HMAC_DIGEST, application.secret, req.body)
@@ -24,10 +24,11 @@ class SendWebhookJob
     end
   end
 
-  def webhook_body(pull_request_number, pull_request_head)
+  def webhook_body(pull_request_number, pull_request_head, pull_request_countries)
     {
       countries_json_url: "https://cdn.rawgit.com/everypolitician/everypolitician-data/#{pull_request_head}/countries.json",
-      pull_request_url: "https://api.github.com/repos/everypolitician/everypolitician-data/pulls/#{pull_request_number}"
+      pull_request_url: "https://api.github.com/repos/everypolitician/everypolitician-data/pulls/#{pull_request_number}",
+      legislatures_affected: pull_request_countries
     }
   end
 end

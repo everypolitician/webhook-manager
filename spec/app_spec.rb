@@ -44,7 +44,7 @@ describe 'App' do
     post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
     assert_equal 200, last_response.status
     assert_equal 1, SendWebhookJob.jobs.size
-    assert_equal [application.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal [application.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs.first['args']
     assert_equal "Dispatched 1 webhooks", last_response.body
   end
 
@@ -68,8 +68,8 @@ describe 'App' do
     assert_equal 0, SendWebhookJob.jobs.size
     post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
     assert_equal 200, last_response.status
-    assert_equal [application1.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs.first['args']
-    assert_equal [application3.id, 'pull_request_opened', '42', 'abc123'], SendWebhookJob.jobs[1]['args']
+    assert_equal [application1.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs.first['args']
+    assert_equal [application3.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs[1]['args']
     assert_equal 2, SendWebhookJob.jobs.size
     assert_equal "Dispatched 2 webhooks", last_response.body
   end
@@ -94,7 +94,7 @@ describe 'App' do
     assert_equal 0, SendWebhookJob.jobs.size
     post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
     assert_equal 200, last_response.status
-    assert_equal [application1.id, 'pull_request_opened', '43', 'abc123'], SendWebhookJob.jobs.first['args']
+    assert_equal [application1.id, 'pull_request_opened', '43', 'abc123', []], SendWebhookJob.jobs.first['args']
     assert_equal 1, SendWebhookJob.jobs.size
     assert_equal "Dispatched 1 webhooks", last_response.body
   end
@@ -152,17 +152,17 @@ describe 'App' do
         name: 'Test',
         webhook_url: 'http://example.com'
       )
-      @body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
+      @body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42","legislatures_affected":[]}'
     end
 
     it 'dispatches webhook' do
-      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123')
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123', [])
       assert_requested :post, 'http://example.com', body: @body, times: 1
     end
 
     it 'signs the webhook if secret is provided' do
       @application.update(secret: 'myspecialsecret')
-      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123')
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '42', 'abc123', [])
       expected_signature = 'sha1=' + OpenSSL::HMAC.hexdigest(
         SendWebhookJob::HMAC_DIGEST,
         'myspecialsecret',
@@ -174,6 +174,16 @@ describe 'App' do
         body: @body,
         times: 1,
         headers: { 'X-EveryPolitician-Signature' => expected_signature }
+      )
+    end
+
+    it 'includes a list of affected legislatures in the body' do
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '43', 'abc123', ['example'])
+      assert_requested(
+        :post,
+        'http://example.com',
+        body: '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/43","legislatures_affected":["example"]}',
+        times: 1,
       )
     end
   end
