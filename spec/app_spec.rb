@@ -18,6 +18,14 @@ describe 'App' do
       :body => '[{"filename": "not/a/legislature"}]',
       :headers => {'Content-Type'=>'application/json'}
     )
+    stub_request(
+      :get,
+      "https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json"
+    ).to_return(
+      :status => 200,
+      :body => '[{"slug":"example","legislatures":[{"slug":"example","sources_directory":"data/example/example/sources"}]}]',
+      :headers => {'Content-Type'=>'application/json'}
+    )
   end
 
   it 'has a homepage' do
@@ -44,7 +52,7 @@ describe 'App' do
     post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
     assert_equal 200, last_response.status
     assert_equal 1, SendWebhookJob.jobs.size
-    assert_equal [application.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs.first['args']
+    assert_equal [application.id, 'pull_request_opened', '42', 'abc123', [{"country_slug" => 'example', "legislature_slug" => 'example'}]], SendWebhookJob.jobs.first['args']
     assert_equal "Dispatched 1 webhooks", last_response.body
   end
 
@@ -68,8 +76,8 @@ describe 'App' do
     assert_equal 0, SendWebhookJob.jobs.size
     post '/', body, 'HTTP_X_GITHUB_EVENT' => 'pull_request', 'HTTP_X_HUB_SIGNATURE' => body_signature(body)
     assert_equal 200, last_response.status
-    assert_equal [application1.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs.first['args']
-    assert_equal [application3.id, 'pull_request_opened', '42', 'abc123', ['example/example']], SendWebhookJob.jobs[1]['args']
+    assert_equal [application1.id, 'pull_request_opened', '42', 'abc123', [{"country_slug" => 'example', "legislature_slug" => 'example'}]], SendWebhookJob.jobs.first['args']
+    assert_equal [application3.id, 'pull_request_opened', '42', 'abc123', [{"country_slug" => 'example', "legislature_slug" => 'example'}]], SendWebhookJob.jobs[1]['args']
     assert_equal 2, SendWebhookJob.jobs.size
     assert_equal "Dispatched 2 webhooks", last_response.body
   end
@@ -178,11 +186,11 @@ describe 'App' do
     end
 
     it 'includes a list of affected legislatures in the body' do
-      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '43', 'abc123', ['example'])
+      SendWebhookJob.new.perform(@application.id, 'pull_request_opened', '43', 'abc123', [{:country_slug => 'example', :legislature_slug => 'example'}])
       assert_requested(
         :post,
         'http://example.com',
-        body: '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/43","legislatures_affected":["example"]}',
+        body: '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/43","legislatures_affected":[{"country_slug":"example","legislature_slug":"example"}]}',
         times: 1,
       )
     end
@@ -195,7 +203,7 @@ describe 'App' do
         "https://raw.githubusercontent.com/everypolitician/everypolitician-data/master/countries.json"
       ).to_return(
         :status => 200,
-        :body => '[{"name":"Abkhazia","legislatures":[{"name":"People\'s Assembly","sources_directory": "data/Abkhazia/Assembly"}]}]',
+        :body => '[{"name":"Abkhazia","legislatures":[{"name":"People\'s Assembly","sources_directory": "data/Abkhazia/Assembly"}]},{"slug":"example","legislatures":[{"slug":"example","sources_directory":"data/example/example/sources"}]}]'
       )
       login!
     end

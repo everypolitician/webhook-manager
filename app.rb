@@ -55,6 +55,10 @@ helpers do
     pr_files = Octokit.pull_request_files(payload['repository']['full_name'], payload['number'])
     pr_files.map { |f| legislature_for_file(f['filename']) }.compact.uniq
   end
+
+  def legislatures_for_sources(sources)
+    sources.map { |s| EveryPolitician::Legislature.from_sources_dir(s.to_s) }.map { |l| { :country_slug => l.country.slug, :legislature_slug  => l.slug } }
+  end
 end
 
 use OmniAuth::Builder do
@@ -100,7 +104,7 @@ post '/' do
       pull_request_action,
       payload['number'],
       payload['pull_request']['head']['sha'],
-      countries
+      legislatures_for_sources(countries)
     )
   end
   "Dispatched #{applications.count} webhooks"
