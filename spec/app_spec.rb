@@ -152,7 +152,7 @@ describe 'App' do
         name: 'Test',
         webhook_url: 'http://example.com'
       )
-      @body = '{"countries_json_url":"https://cdn.rawgit.com/everypolitician/everypolitician-data/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
+      @body = '{"countries_json_url":"https://github.com/everypolitician/everypolitician-data/raw/abc123/countries.json","pull_request_url":"https://api.github.com/repos/everypolitician/everypolitician-data/pulls/42"}'
     end
 
     it 'dispatches webhook' do
