@@ -26,6 +26,7 @@ describe 'App' do
       :body => '[{"slug":"example","legislatures":[{"slug":"example","sources_directory":"data/example/example/sources"}]}]',
       :headers => {'Content-Type'=>'application/json'}
     )
+    OmniAuth.config.mock_auth[:github] = nil
   end
 
   it 'has a homepage' do
@@ -108,6 +109,20 @@ describe 'App' do
   end
 
   describe 'login' do
+    before do
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(
+        provider: 'github',
+        uid: '123545',
+        info: {
+          name: 'Bob Test',
+          email: 'bob@example.org'
+        },
+        credentials: {
+          token: 'abc123'
+        }
+      )
+    end
+
     it 'creates a new user if none found' do
       assert_difference 'User.count', 1 do
         get '/auth/github'
