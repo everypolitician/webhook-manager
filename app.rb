@@ -134,6 +134,10 @@ get '/logout' do
   redirect to('/')
 end
 
+before '/webhooks/?*?' do
+  @countries = EveryPolitician.countries
+end
+
 get '/webhooks' do
   halt if current_user.nil?
   @applications = current_user.applications
@@ -149,21 +153,18 @@ post '/webhooks' do
     flash[:notice] = 'Webhook successfully added.'
     redirect to('/webhooks')
   else
-    @countries = EveryPolitician.countries
     erb :form
   end
 end
 
 get '/webhooks/new' do
   @application = Application.new
-  @countries = EveryPolitician.countries
   erb :form
 end
 
 get '/webhooks/:id' do
   halt if current_user.nil?
   @application = current_user.applications_dataset.first(id: params[:id])
-  @countries = EveryPolitician.countries
   erb :form
 end
 
