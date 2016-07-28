@@ -136,6 +136,23 @@ describe 'App' do
       end
       assert_equal 'http://example.org/auth/github/callback', last_request.url
     end
+
+    it "works if a user doesn't have a name set on GitHub" do
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(
+        provider: 'github',
+        uid: '123545',
+        info: {
+          email: 'bob@example.org'
+        },
+        credentials: {
+          token: 'abc123'
+        }
+      )
+      assert_difference 'User.count', 1 do
+        get '/auth/github'
+        follow_redirect!
+      end
+    end
   end
 
   describe 'logout' do
