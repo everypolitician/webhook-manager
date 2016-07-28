@@ -26,6 +26,7 @@ describe 'App' do
       :body => '[{"slug":"example","legislatures":[{"slug":"example","sources_directory":"data/example/example/sources"}]}]',
       :headers => {'Content-Type'=>'application/json'}
     )
+    OmniAuth.config.mock_auth[:github] = nil
   end
 
   it 'has a homepage' do
@@ -108,6 +109,20 @@ describe 'App' do
   end
 
   describe 'login' do
+    before do
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(
+        provider: 'github',
+        uid: '123545',
+        info: {
+          name: 'Bob Test',
+          email: 'bob@example.org'
+        },
+        credentials: {
+          token: 'abc123'
+        }
+      )
+    end
+
     it 'creates a new user if none found' do
       assert_difference 'User.count', 1 do
         get '/auth/github'
@@ -121,6 +136,7 @@ describe 'App' do
       assert last_response.body.include?(
         'You have successfully logged in with GitHub'
       )
+      assert last_response.body.include?('Logged in as Bob Test')
     end
 
     it 'uses existing user if one exists' do
@@ -135,6 +151,25 @@ describe 'App' do
         follow_redirect!
       end
       assert_equal 'http://example.org/auth/github/callback', last_request.url
+    end
+
+    it "works if a user doesn't have a name set on GitHub" do
+      OmniAuth.config.mock_auth[:github] = OmniAuth::AuthHash.new(
+        provider: 'github',
+        uid: '123545',
+        info: {
+          email: 'bob@example.org'
+        },
+        credentials: {
+          token: 'abc123'
+        }
+      )
+      assert_difference 'User.count', 1 do
+        get '/auth/github'
+        follow_redirect!
+      end
+      2.times { follow_redirect! }
+      assert last_response.body.include?('Logged in as bob@example.org')
     end
   end
 
