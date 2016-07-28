@@ -1,6 +1,6 @@
 # EveryPolitician Webhook Manager
 
-[![Build Status](https://travis-ci.org/everypolitician/app-manager.svg?branch=master)](https://travis-ci.org/everypolitician/app-manager)
+[![Build Status](https://travis-ci.org/everypolitician/webhook-manager.svg?branch=master)](https://travis-ci.org/everypolitician/webhook-manager)
 
 Listens for events from GitHub and 3rd party apps using [EveryPolitician](http://everypolitician.org) data and passes them on as webhooks in the same manner as GitHub's webhooks, featuring:
 
@@ -16,8 +16,8 @@ We're running this service for you at https://everypolitician-app-manager.heroku
 
 Get the code from GitHub
 
-    git clone https://github.com/everypolitician/app-manager
-    cd app-manager
+    git clone https://github.com/everypolitician/webhook-manager
+    cd webhook-manager
 
 Configure the environment by copying `.env.example` and following the instructions inside to configure the app.
 
