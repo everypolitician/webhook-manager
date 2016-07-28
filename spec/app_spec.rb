@@ -136,6 +136,7 @@ describe 'App' do
       assert last_response.body.include?(
         'You have successfully logged in with GitHub'
       )
+      assert last_response.body.include?('Logged in as Bob Test')
     end
 
     it 'uses existing user if one exists' do
@@ -167,6 +168,8 @@ describe 'App' do
         get '/auth/github'
         follow_redirect!
       end
+      2.times { follow_redirect! }
+      assert last_response.body.include?('Logged in as bob@example.org')
     end
   end
 
