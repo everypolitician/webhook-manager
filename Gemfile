@@ -22,7 +22,7 @@ gem 'everypoliticianbot', github: 'everypolitician/everypoliticianbot'
 gem 'sinatra-github_webhooks'
 
 # Rollbar integration (oj is recommended)
-gem 'rollbar', '~> 2.4.0'
+gem 'rollbar', '~> 2.13'
 gem 'oj', '~> 2.12.14'
 
 group :test do
