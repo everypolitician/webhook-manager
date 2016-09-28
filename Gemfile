@@ -31,4 +31,5 @@ group :test do
   gem 'simplecov', require: false
   gem 'database_cleaner'
   gem 'webmock'
+  gem 'bundler-audit', '~> 0.5'
 end
