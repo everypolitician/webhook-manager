@@ -4,7 +4,7 @@ ruby '2.2.3'
 
 gem 'sinatra'
 gem 'dotenv'
-gem 'sidekiq'
+gem 'sidekiq', '~> 4.2'
 gem 'octokit'
 gem 'puma'
 gem 'sequel'
