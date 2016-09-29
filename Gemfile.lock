@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/everypolitician/everypolitician-ruby.git
+  remote: https://github.com/everypolitician/everypolitician-ruby.git
   revision: 1ab5d5ba15ff42cb1af01ba7528b948becfb1544
   ref: 1ab5d5b
   specs:
