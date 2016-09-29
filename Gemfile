@@ -17,7 +17,7 @@ gem 'rubocop', require: false
 gem 'faraday'
 gem 'pry', require: false
 gem 'activesupport', require: 'active_support'
-gem 'everypolitician', github: 'everypolitician/everypolitician-ruby'
+gem 'everypolitician', github: 'everypolitician/everypolitician-ruby', ref: '1ab5d5b'
 gem 'sinatra-github_webhooks'
 
 # Rollbar integration (oj is recommended)
