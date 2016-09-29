@@ -29,4 +29,7 @@ end
 require 'rubocop/rake_task'
 RuboCop::RakeTask.new
 
-task default: :test
+require 'bundler/audit/task'
+Bundler::Audit::Task.new
+
+task default: %w(test bundle:audit)
