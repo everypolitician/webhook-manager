@@ -143,22 +143,8 @@ get '/webhooks' do
   erb :webhooks
 end
 
-post '/webhooks' do
-  halt if current_user.nil?
-  @application = Application.new(params[:application] || {})
-  @application.user_id = current_user.id
-  if @application.valid?
-    @application.save
-    flash[:notice] = 'Webhook successfully added.'
-    redirect to('/webhooks')
-  else
-    erb :form
-  end
-end
-
 get '/webhooks/new' do
-  @application = Application.new
-  erb :form
+  erb :webhook_creation_disabled
 end
 
 get '/webhooks/:id' do
